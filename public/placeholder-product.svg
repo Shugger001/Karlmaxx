@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1067" viewBox="0 0 800 1067">
+  <rect width="800" height="1067" fill="#e2ecf7"/>
+  <path fill="#1565c0" fill-opacity="0.18" d="M400 380c-55 0-100 45-100 100v200h200V480c0-55-45-100-100-100z"/>
+  <text x="400" y="920" text-anchor="middle" fill="#1565c0" fill-opacity="0.55" font-family="Georgia,serif" font-size="28">Karlmaxx</text>
+</svg>

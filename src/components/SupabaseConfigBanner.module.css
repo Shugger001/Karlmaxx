@@ -1,0 +1,16 @@
+.banner {
+  padding: 0.65rem clamp(1rem, 3vw, 2rem);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: center;
+  color: #0d47a1;
+  background: #bbdefb;
+  border-bottom: 1px solid rgba(21, 101, 192, 0.2);
+}
+
+.banner code {
+  font-size: 0.78em;
+  padding: 0.1em 0.35em;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+}

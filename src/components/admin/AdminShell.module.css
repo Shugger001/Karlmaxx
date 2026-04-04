@@ -1,0 +1,236 @@
+.layout {
+  min-height: calc(100vh - 0px);
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  background: var(--background);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  min-height: 100vh;
+  padding: 1.25rem 0 1rem;
+  background: linear-gradient(180deg, #131921 0%, #1a2332 100%);
+  color: #e8eaed;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: min(280px, 88vw);
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brandLink {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.brandLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.brandBadge {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(254, 189, 105, 0.25);
+  color: #febd69;
+}
+
+.sidebarSub {
+  font-size: 0.72rem;
+  color: #9aa7b8;
+  padding: 0.65rem 1rem 0.5rem;
+  margin: 0;
+}
+
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.65rem;
+}
+
+.navBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #c5cdd8;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.navBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.navBtnActive {
+  background: rgba(0, 113, 133, 0.35);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 113, 133, 0.5);
+}
+
+.navLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.navHint {
+  font-size: 0.65rem;
+  color: #8b98a8;
+}
+
+.navBtnActive .navHint {
+  color: #b8d4d9;
+}
+
+.sidebarFoot {
+  margin-top: auto;
+  padding: 1rem 1rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footLink {
+  font-size: 0.78rem;
+  color: #9aa7b8;
+}
+
+.footLink:hover {
+  color: #fff;
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 3vw, 1.75rem);
+  background: rgba(234, 237, 237, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.menuBtn {
+  display: none;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+@media (max-width: 900px) {
+  .menuBtn {
+    display: inline-flex;
+  }
+}
+
+.topbarTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+}
+
+.pageHint {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.bannerErr {
+  margin: 0 clamp(1rem, 3vw, 1.75rem);
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  color: #7f1d1d;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
+
+.content {
+  flex: 1;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  padding-top: 1.25rem;
+}
+
+.scrim {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgba(0, 0, 0, 0.45);
+    border: none;
+    cursor: pointer;
+  }
+}

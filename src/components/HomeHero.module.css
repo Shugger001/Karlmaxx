@@ -1,0 +1,315 @@
+.hero {
+  position: relative;
+  padding: clamp(1.75rem, 5vw, 3rem) clamp(1.25rem, 4vw, 3rem);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 100% 0%, rgba(0, 113, 133, 0.07), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(222, 121, 33, 0.08), transparent 50%),
+    linear-gradient(165deg, #fff 0%, #f3f5f5 48%, #eef1f1 100%);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem 3rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+  }
+}
+
+@keyframes fadeRise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatSoft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.copy {
+  min-width: 0;
+}
+
+.kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--link);
+  margin-bottom: 0.75rem;
+  animation: fadeRise 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.04s both;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: clamp(1.55rem, 3.8vw, 2.15rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--foreground);
+  margin-bottom: 0.65rem;
+  letter-spacing: -0.02em;
+  animation: fadeRise 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.lead {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 520px;
+  animation: fadeRise 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.35rem;
+}
+
+.cta .btnPrimary {
+  animation: fadeRise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both;
+}
+
+.cta .btnGhost {
+  animation: fadeRise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.34s both;
+}
+
+.accountStrip {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  animation: fadeRise 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.38s both;
+}
+
+.accountStrip a {
+  color: var(--link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.accountStrip a:hover {
+  color: var(--accent-hover);
+}
+
+.accountSep {
+  margin: 0 0.35rem;
+  color: var(--muted-faint);
+  user-select: none;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem 1.75rem;
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(213, 217, 217, 0.9);
+  animation: fadeRise 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+}
+
+.stat {
+  margin: 0;
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-faint);
+}
+
+.statValue {
+  margin: 0;
+  margin-top: 0.15rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.btnPrimary,
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  border-radius: 16px;
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.btnPrimary:active,
+.btnGhost:active {
+  transform: scale(0.98);
+}
+
+.btnPrimary {
+  background: var(--cta-yellow);
+  color: var(--foreground);
+  border: none;
+  box-shadow: inset 0 0 0 1px #fcd200;
+}
+
+.btnPrimary:hover {
+  background: var(--cta-yellow-hover);
+}
+
+.btnGhost {
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  background: #fff;
+}
+
+.btnGhost:hover {
+  background: #f7f8f8;
+}
+
+.showcase {
+  position: relative;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 900px) {
+  .showcase {
+    min-height: 320px;
+  }
+}
+
+.orb {
+  position: absolute;
+  width: min(100%, 340px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 210deg,
+    rgba(0, 113, 133, 0.12),
+    rgba(222, 121, 33, 0.14),
+    rgba(0, 113, 133, 0.1),
+    rgba(254, 189, 105, 0.12)
+  );
+  filter: blur(0.5px);
+  animation: floatSoft 7s ease-in-out infinite;
+}
+
+.stack {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  height: 260px;
+}
+
+.frame {
+  position: absolute;
+  border-radius: 12px;
+  border: 1px solid rgba(213, 217, 217, 0.95);
+  box-shadow:
+    0 12px 28px rgba(15, 17, 17, 0.12),
+    0 2px 6px rgba(15, 17, 17, 0.06);
+  animation: fadeRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.frameLabel {
+  position: absolute;
+  bottom: 0.65rem;
+  left: 0.65rem;
+  right: 0.65rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  text-align: center;
+  background: rgba(19, 25, 33, 0.72);
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+}
+
+.frameA {
+  width: 58%;
+  height: 52%;
+  top: 4%;
+  right: 6%;
+  background: linear-gradient(145deg, #e8f4f6 0%, #cce8ed 45%, #a8d4dc 100%);
+  animation-delay: 0.15s;
+}
+
+.frameB {
+  width: 62%;
+  height: 48%;
+  bottom: 12%;
+  left: 0;
+  background: linear-gradient(155deg, #f5f0e8 0%, #e8dcc8 50%, #d4c4a8 100%);
+  animation-delay: 0.28s;
+}
+
+.frameC {
+  width: 48%;
+  height: 42%;
+  bottom: 0;
+  right: 4%;
+  background: linear-gradient(160deg, #2a2a2e 0%, #1a1a1f 55%, #0f0f12 100%);
+  animation-delay: 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kicker,
+  .title,
+  .lead,
+  .cta .btnPrimary,
+  .cta .btnGhost,
+  .accountStrip,
+  .stats,
+  .frame {
+    animation: none;
+  }
+
+  .orb {
+    animation: none;
+  }
+
+  .btnPrimary:active,
+  .btnGhost:active {
+    transform: none;
+  }
+}

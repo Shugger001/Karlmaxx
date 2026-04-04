@@ -1,0 +1,155 @@
+.section {
+  padding: clamp(2.5rem, 8vw, 5rem) clamp(1.25rem, 4vw, 3rem);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  max-width: 100%;
+}
+
+.chip {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.chip:hover {
+  border-color: #b8bcbc;
+  color: var(--foreground);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.chipActive {
+  color: var(--foreground);
+  background: var(--accent-soft);
+  border-color: var(--accent-dim);
+  box-shadow: 0 1px 0 rgba(0, 113, 133, 0.12);
+}
+
+.chipSubWrap {
+  margin: -0.35rem 0 1.25rem;
+  padding: 0.65rem 0 0.65rem 0.85rem;
+  border-left: 3px solid var(--accent-dim);
+  background: var(--surface);
+  border-radius: 0 6px 6px 0;
+  max-width: 100%;
+}
+
+.chipSubLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.chipSubRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chipSubRow .chip {
+  font-size: 0.72rem;
+  padding: 0.32rem 0.7rem;
+}
+
+.headReveal,
+.gridReveal {
+  width: 100%;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.head h2 {
+  font-family: var(--font-body);
+  font-size: clamp(1.35rem, 2.5vw, 1.65rem);
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: 0.01em;
+}
+
+.resultMeta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.tagline {
+  font-size: 0.88rem;
+  color: var(--muted);
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+.gridOuter {
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.stateLoading {
+  animation: statePulse 1.15s ease-in-out infinite;
+}
+
+@keyframes statePulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stateLoading {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.error {
+  color: #b71c1c;
+}

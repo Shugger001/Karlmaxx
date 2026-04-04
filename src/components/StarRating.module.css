@@ -1,0 +1,46 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.stars {
+  display: inline-flex;
+  letter-spacing: -0.12em;
+  line-height: 1;
+}
+
+.starFull {
+  color: #de7921;
+  font-size: 0.95rem;
+}
+
+.starEmpty {
+  color: #ddd;
+  font-size: 0.95rem;
+}
+
+.md .starFull,
+.md .starEmpty {
+  font-size: 1.05rem;
+}
+
+.average {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--link);
+}
+
+.md .average {
+  font-size: 0.85rem;
+}
+
+.count {
+  font-size: 0.72rem;
+  color: var(--link);
+}
+
+.md .count {
+  font-size: 0.8rem;
+}
