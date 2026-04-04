@@ -148,7 +148,7 @@ From **Vercel → Deployments**, open the deployment and use **Visit**. Send tha
 
 ### Google sign-in redirects but session is lost
 
-- Confirm `/auth/callback` is listed in Supabase Auth URL settings and that `src/middleware.ts` is active.
+- Confirm `/auth/callback` is listed in Supabase Auth URL settings and that `src/proxy.ts` is active (refreshes Supabase session cookies on navigation).
 
 ## Project structure (high level)
 
@@ -159,7 +159,7 @@ From **Vercel → Deployments**, open the deployment and use **Visit**. Send tha
 - `src/context/AuthContext.tsx` / `CartContext.tsx` / `AdminDataContext.tsx`
 - `src/components/admin/AdminShell.tsx` + `views/*` — `/admin` dashboard UI
 - `src/app/auth/callback/route.ts` — OAuth code exchange
-- `src/middleware.ts` — refresh auth cookies
+- `src/proxy.ts` — refresh Supabase auth cookies (Next.js 16+ proxy)
 - `src/app/api/paystack/verify/route.ts` — verify payment, insert order, update stock
 
 ## Paystack flow
