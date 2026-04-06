@@ -1,15 +1,13 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import { useAdminData } from "@/context/AdminDataContext";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useState, type ReactNode } from "react";
 import type { AdminViewId } from "./adminTypes";
+import { ADMIN_SECTION_HREF } from "./adminTypes";
 import shell from "./AdminShell.module.css";
-import { CustomersView } from "./views/CustomersView";
-import { OrdersView } from "./views/OrdersView";
-import { OverviewView } from "./views/OverviewView";
-import { ProductsView } from "./views/ProductsView";
-import { SystemView } from "./views/SystemView";
 
 const NAV: {
   id: AdminViewId;
@@ -23,40 +21,78 @@ const NAV: {
   { id: "system", label: "System", hint: "Integrations" },
 ];
 
-export function AdminShell() {
-  const [view, setView] = useState<AdminViewId>("overview");
+function AdminUserRail() {
+  const { profile, user, logout } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const email = profile?.email ?? user?.email ?? "Administrator";
+
+  return (
+    <div className={shell.userRail}>
+      <span className={shell.privilegeBadge} title="Privileged session">
+        Privileged
+      </span>
+      <span className={shell.userEmail} title={email}>
+        {email}
+      </span>
+      <button
+        type="button"
+        className={shell.signOut}
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          try {
+            await logout();
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        Sign out
+      </button>
+    </div>
+  );
+}
+
+export function AdminShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [mobileNav, setMobileNav] = useState(false);
   const { loading, error, products, orders, profiles } = useAdminData();
+
+  const active = NAV.find((n) => pathname === ADMIN_SECTION_HREF[n.id]);
 
   return (
     <div className={shell.layout}>
       <aside className={`${shell.sidebar} ${mobileNav ? shell.sidebarOpen : ""}`}>
         <div className={shell.brand}>
-          <Link href="/" className={shell.brandLink} onClick={() => setMobileNav(false)}>
-            Karlmaxx
-          </Link>
+          <div className={shell.brandStack}>
+            <Link href="/" className={shell.brandLink} onClick={() => setMobileNav(false)}>
+              Karlmaxx
+            </Link>
+            <span className={shell.privateMark}>Private suite</span>
+          </div>
           <span className={shell.brandBadge}>Admin</span>
         </div>
-        <p className={shell.sidebarSub}>Operations console</p>
+        <p className={shell.sidebarSub}>Investment Limited · internal operations</p>
         <nav className={shell.nav} aria-label="Admin sections">
-          {NAV.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`${shell.navBtn} ${view === item.id ? shell.navBtnActive : ""}`}
-              onClick={() => {
-                setView(item.id);
-                setMobileNav(false);
-              }}
-            >
-              <span className={shell.navLabel}>{item.label}</span>
-              <span className={shell.navHint}>{item.hint}</span>
-            </button>
-          ))}
+          {NAV.map((item) => {
+            const href = ADMIN_SECTION_HREF[item.id];
+            const isActive = pathname === href;
+            return (
+              <Link
+                key={item.id}
+                href={href}
+                className={`${shell.navBtn} ${isActive ? shell.navBtnActive : ""}`}
+                onClick={() => setMobileNav(false)}
+              >
+                <span className={shell.navLabel}>{item.label}</span>
+                <span className={shell.navHint}>{item.hint}</span>
+              </Link>
+            );
+          })}
         </nav>
         <div className={shell.sidebarFoot}>
           <Link href="/" className={shell.footLink} onClick={() => setMobileNav(false)}>
-            ← Storefront
+            ← Exit to storefront
           </Link>
         </div>
       </aside>
@@ -81,17 +117,17 @@ export function AdminShell() {
             Menu
           </button>
           <div className={shell.topbarTitle}>
-            <h1 className={shell.pageTitle}>
-              {NAV.find((n) => n.id === view)?.label ?? "Admin"}
-            </h1>
+            <p className={shell.suiteEyebrow}>Karlmaxx private dashboard</p>
+            <h1 className={shell.pageTitle}>{active?.label ?? "Admin"}</h1>
             <p className={shell.pageHint}>
               {loading
-                ? "Syncing data…"
+                ? "Syncing secure data…"
                 : error
                   ? "Some data failed to load"
                   : `${products.length} products · ${orders.length} orders · ${profiles.length} accounts`}
             </p>
           </div>
+          <AdminUserRail />
         </header>
 
         {error && (
@@ -100,13 +136,7 @@ export function AdminShell() {
           </div>
         )}
 
-        <div className={shell.content}>
-          {view === "overview" && <OverviewView onNavigate={setView} />}
-          {view === "products" && <ProductsView />}
-          {view === "orders" && <OrdersView />}
-          {view === "customers" && <CustomersView />}
-          {view === "system" && <SystemView />}
-        </div>
+        <div className={shell.content}>{children}</div>
       </div>
     </div>
   );

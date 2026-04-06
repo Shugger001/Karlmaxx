@@ -40,8 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={retail.variable}>
-      <body className={retail.className}>
+    <html lang="en" className={retail.variable} suppressHydrationWarning>
+      <body className={retail.className} suppressHydrationWarning>
         <SupabaseConfigBanner />
         <Providers>
           <AppChrome>{children}</AppChrome>

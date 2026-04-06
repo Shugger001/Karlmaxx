@@ -1,13 +1,5 @@
-import { AdminShell } from "@/components/admin/AdminShell";
-import { AdminGate } from "@/components/AdminGate";
-import { AdminDataProvider } from "@/context/AdminDataContext";
+import { redirect } from "next/navigation";
 
-export default function AdminPage() {
-  return (
-    <AdminGate>
-      <AdminDataProvider>
-        <AdminShell />
-      </AdminDataProvider>
-    </AdminGate>
-  );
+export default function AdminIndexPage() {
+  redirect("/admin/overview");
 }

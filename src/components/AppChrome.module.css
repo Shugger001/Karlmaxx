@@ -28,3 +28,16 @@
 .main:focus {
   outline: none;
 }
+
+/* Admin uses its own shell; no storefront nav/footer — full viewport height. */
+.mainAdmin {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainAdmin:focus {
+  outline: none;
+}

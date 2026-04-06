@@ -1,0 +1,51 @@
+/* Karlmaxx private admin — scoped tokens & backdrop (storefront :root unchanged). */
+
+.adminExclusiveScope {
+  --background: #0b0c0f;
+  --surface: #12141a;
+  --foreground: #eceef2;
+  --muted: #8b909c;
+  --muted-faint: #6a6f7a;
+  --border: rgba(255, 255, 255, 0.07);
+  --accent: #c9a962;
+  --accent-hover: #dcc07a;
+  --accent-dim: rgba(201, 169, 98, 0.35);
+  --accent-soft: rgba(201, 169, 98, 0.1);
+  --gold: #e8cf8c;
+  --gold-dim: #c9a962;
+  --link: #dcc07a;
+  --success: #6bcf8e;
+  --image-bg: #1c2028;
+  --admin-field-bg: rgba(255, 255, 255, 0.05);
+  --admin-stat-bg: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  --admin-order-detail-bg: rgba(255, 255, 255, 0.04);
+  --admin-thumb-bg: rgba(255, 255, 255, 0.07);
+  --admin-panel-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+
+  min-height: 100vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: var(--foreground);
+  font-family: var(--font-admin-ui), var(--font-retail), system-ui, sans-serif;
+  background:
+    radial-gradient(ellipse 90% 55% at 85% -5%, rgba(201, 169, 98, 0.11), transparent 52%),
+    radial-gradient(ellipse 65% 45% at 0% 100%, rgba(45, 65, 98, 0.22), transparent 48%),
+    linear-gradient(180deg, #0b0c0f 0%, #07080a 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.adminExclusiveScope ::selection {
+  background: rgba(201, 169, 98, 0.25);
+  color: var(--foreground);
+}
+
+.adminExclusiveScope :focus-visible {
+  outline-color: var(--accent);
+}

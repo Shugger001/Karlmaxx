@@ -1,0 +1,16 @@
+Apply these in Supabase → SQL (same project as NEXT_PUBLIC_SUPABASE_URL), in order, once per project.
+
+  1. 001_initial.sql
+  2. 002_product_color_options.sql
+  3. 003_stable_picsum_product_images.sql
+  4. 004_fix_product_prices_cedis_scale.sql
+  5. 005_real_pexels_product_images.sql
+  6. 006_admin_dashboard_rls.sql
+  7. 007_product_brand.sql
+  8. 008_profiles_role_lockdown.sql
+  9. 009_profiles_insert_own.sql
+ 10. 010_fix_profiles_rls_recursion.sql   ← fixes admin "infinite recursion" (42P17) on profiles
+
+If the dashboard already had 001–006 applied, run only 007–010 (or at minimum 010 if you see 42P17).
+
+After SQL: restart npm run dev, open /admin, run migration 009+010 if profile load or insert fails.

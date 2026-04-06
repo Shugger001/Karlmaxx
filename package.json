@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true})}catch(e){}\"",
+    "dev:fresh": "npm run clean && next dev -p 3030",
+    "reinstall": "npm run clean && node -e \"try{require('fs').rmSync('node_modules',{recursive:true,force:true})}catch(e){}\" && npm ci",
+    "stack:check": "npm run verify:supabase && npm run lint && npm run build",
     "dev": "next dev -p 3030",
     "open:dev": "open http://localhost:3030",
     "dev:karlmaxx": "next dev -p 3030",

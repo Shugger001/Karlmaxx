@@ -3,7 +3,7 @@
   padding: 1.5rem;
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 8px 28px rgba(21, 101, 192, 0.05);
+  box-shadow: var(--admin-panel-shadow, 0 8px 28px rgba(21, 101, 192, 0.05));
 }
 
 .panelTitle {
@@ -58,7 +58,7 @@
 .select {
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--border);
-  background: #f8fbff;
+  background: var(--admin-field-bg, #f8fbff);
   color: var(--foreground);
   border-radius: 2px;
   font-size: 0.9rem;
@@ -117,10 +117,14 @@
 }
 
 .btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.75rem 1.25rem;
   font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  text-decoration: none;
   border-radius: 2px;
   cursor: pointer;
   background: transparent;
@@ -212,7 +216,7 @@
   height: 52px;
   object-fit: cover;
   border-radius: 2px;
-  background: #e8f0fa;
+  background: var(--admin-thumb-bg, #e8f0fa);
 }
 
 .statGrid {
@@ -225,7 +229,10 @@
   padding: 1.15rem;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: linear-gradient(165deg, #fafcfd 0%, #fff 100%);
+  background: var(
+    --admin-stat-bg,
+    linear-gradient(165deg, #fafcfd 0%, #fff 100%)
+  );
 }
 
 .statValue {
@@ -290,7 +297,7 @@
 .orderDetail {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: #f4f8fb;
+  background: var(--admin-order-detail-bg, #f4f8fb);
   border-radius: 6px;
   font-size: 0.78rem;
   line-height: 1.5;

@@ -6,15 +6,11 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { categoryCounts } from "../adminUtils";
 import s from "../adminShared.module.css";
-import type { AdminViewId } from "../adminTypes";
+import { ADMIN_SECTION_HREF } from "../adminTypes";
 
 const LOW_STOCK = 5;
 
-export function OverviewView({
-  onNavigate,
-}: {
-  onNavigate: (id: AdminViewId) => void;
-}) {
+export function OverviewView() {
   const { products, orders, profiles, loading } = useAdminData();
 
   const stats = useMemo(() => {
@@ -39,12 +35,12 @@ export function OverviewView({
   }, [products, orders, profiles]);
 
   if (loading) {
-    return <p className={s.msg}>Loading overview…</p>;
+    return <p className={s.msg}>Loading command center…</p>;
   }
 
   return (
     <div className={s.panel}>
-      <h2 className={s.panelTitle}>Business snapshot</h2>
+      <h2 className={s.panelTitle}>Command center</h2>
       <div className={s.statGrid}>
         <div className={s.statCard}>
           <div className={s.statValue}>{formatCedis(stats.revenue)}</div>
@@ -81,14 +77,13 @@ export function OverviewView({
             <p className={s.msg}>
               <span className={s.badgeWarn}>{stats.outOfStock.length} out of stock</span>
               {" — "}
-              <button
-                type="button"
+              <Link
+                href={ADMIN_SECTION_HREF.products}
                 className={s.btnGhost}
                 style={{ padding: "0.35rem 0.55rem", fontSize: "0.65rem" }}
-                onClick={() => onNavigate("products")}
               >
                 Open products
-              </button>
+              </Link>
             </p>
           )}
           {stats.lowStock.length > 0 && (
@@ -182,13 +177,9 @@ export function OverviewView({
             </div>
           )}
           <p style={{ marginTop: "0.75rem" }}>
-            <button
-              type="button"
-              className={s.btnGhost}
-              onClick={() => onNavigate("orders")}
-            >
+            <Link href={ADMIN_SECTION_HREF.orders} className={s.btnGhost}>
               View all orders
-            </button>
+            </Link>
           </p>
         </div>
 
