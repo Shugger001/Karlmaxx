@@ -1,7 +1,11 @@
+import { getSocialLinks } from "@/lib/siteSocial";
 import Link from "next/link";
+import { FooterSocialIcon } from "./FooterSocialIcon";
 import styles from "./SiteFooter.module.css";
 
 export function SiteFooter() {
+  const socialLinks = getSocialLinks();
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -57,6 +61,28 @@ export function SiteFooter() {
               </li>
             </ul>
           </div>
+          {socialLinks.length > 0 && (
+            <div className={styles.col}>
+              <h3 className={styles.heading}>Follow us</h3>
+              <ul className={styles.socialList}>
+                {socialLinks.map((s) => (
+                  <li key={s.id}>
+                    <a
+                      href={s.href}
+                      className={styles.socialLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className={styles.socialIcon} aria-hidden>
+                        <FooterSocialIcon id={s.id} />
+                      </span>
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
         <p className={styles.trust}>
           Payments processed securely via Paystack. Your card details are never

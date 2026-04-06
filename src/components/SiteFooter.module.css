@@ -44,6 +44,39 @@
   text-decoration: underline;
 }
 
+.socialList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.8rem;
+  color: #ddd;
+  transition: color 0.15s ease;
+}
+
+.socialLink:hover {
+  color: #fff;
+}
+
+.socialIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #b7c0cc;
+  transition: color 0.15s ease;
+}
+
+.socialLink:hover .socialIcon {
+  color: #fff;
+}
+
 .trust {
   max-width: 520px;
   margin: 0 auto 1.5rem;
