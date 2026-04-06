@@ -1,5 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
 import styles from "./HomeHero.module.css";
+
+/** Hero showcase — editorial stills (Unsplash), tuned for menswear / bags / fragrance. */
+const HERO_SHOWCASE = {
+  newIn:
+    "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=900&q=80",
+  bags: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=900&q=80",
+  fragrance:
+    "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=900&q=80",
+} as const;
 
 export function HomeHero() {
   return (
@@ -44,18 +54,52 @@ export function HomeHero() {
             </div>
           </dl>
         </div>
-        <div className={styles.showcase} aria-hidden>
-          <div className={styles.orb} />
+        <div className={styles.showcase}>
+          <div className={styles.orb} aria-hidden />
           <div className={styles.stack}>
-            <div className={`${styles.frame} ${styles.frameA}`}>
+            <Link
+              href="#collection"
+              className={`${styles.frame} ${styles.frameA}`}
+              aria-label="Shop new arrivals"
+            >
+              <Image
+                src={HERO_SHOWCASE.newIn}
+                alt=""
+                fill
+                sizes="(max-width: 900px) 45vw, 200px"
+                className={styles.framePhoto}
+                priority
+              />
               <span className={styles.frameLabel}>New in</span>
-            </div>
-            <div className={`${styles.frame} ${styles.frameB}`}>
+            </Link>
+            <Link
+              href="#collection"
+              className={`${styles.frame} ${styles.frameB}`}
+              aria-label="Shop bags"
+            >
+              <Image
+                src={HERO_SHOWCASE.bags}
+                alt=""
+                fill
+                sizes="(max-width: 900px) 50vw, 220px"
+                className={styles.framePhoto}
+              />
               <span className={styles.frameLabel}>Bags</span>
-            </div>
-            <div className={`${styles.frame} ${styles.frameC}`}>
+            </Link>
+            <Link
+              href="#collection"
+              className={`${styles.frame} ${styles.frameC}`}
+              aria-label="Shop fragrance"
+            >
+              <Image
+                src={HERO_SHOWCASE.fragrance}
+                alt=""
+                fill
+                sizes="(max-width: 900px) 40vw, 180px"
+                className={styles.framePhoto}
+              />
               <span className={styles.frameLabel}>Fragrance</span>
-            </div>
+            </Link>
           </div>
         </div>
       </div>

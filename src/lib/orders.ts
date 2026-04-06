@@ -1,4 +1,6 @@
 import type { CartItem } from "@/types";
+import { randomBytes } from "node:crypto";
+import { normalizeEmail } from "./fulfillment";
 import { getSupabaseAdmin } from "./supabase/admin";
 
 function quantitiesByProductId(items: CartItem[]): Map<string, number> {
@@ -38,7 +40,8 @@ export async function savePaidOrder(input: {
   total: number;
   userId?: string | null;
   paystackReference: string;
-}): Promise<string> {
+  customerEmail?: string | null;
+}): Promise<{ orderId: string; trackingToken: string }> {
   const admin = getSupabaseAdmin();
   const ref = input.paystackReference;
 
@@ -47,7 +50,18 @@ export async function savePaidOrder(input: {
     .select("id")
     .eq("id", ref)
     .maybeSingle();
-  if (existing) return ref;
+  if (existing) {
+    const { data: row } = await admin
+      .from("orders")
+      .select("tracking_token")
+      .eq("id", ref)
+      .maybeSingle();
+    const tok =
+      row && typeof (row as { tracking_token?: unknown }).tracking_token === "string"
+        ? (row as { tracking_token: string }).tracking_token
+        : "";
+    return { orderId: ref, trackingToken: tok };
+  }
 
   let computed = 0;
   const stockUpdates: { id: string; nextStock: number }[] = [];
@@ -79,18 +93,36 @@ export async function savePaidOrder(input: {
     throw new Error("Amount mismatch");
   }
 
-  const { error: insertErr } = await admin.from("orders").insert({
+  const emailNorm = input.customerEmail?.trim()
+    ? normalizeEmail(input.customerEmail)
+    : null;
+  const trackingToken = randomBytes(24).toString("hex");
+
+  const insertPayload: Record<string, unknown> = {
     id: ref,
     user_id: input.userId ?? null,
     items: input.items,
     total: rounded,
     status: "paid",
     paystack_reference: ref,
-  });
+    tracking_token: trackingToken,
+  };
+  if (emailNorm) insertPayload.customer_email = emailNorm;
+
+  const { error: insertErr } = await admin.from("orders").insert(insertPayload);
 
   if (insertErr) {
     if (insertErr.code === "23505") {
-      return ref;
+      const { data: row } = await admin
+        .from("orders")
+        .select("tracking_token")
+        .eq("id", ref)
+        .maybeSingle();
+      const tok =
+        row && typeof (row as { tracking_token?: unknown }).tracking_token === "string"
+          ? (row as { tracking_token: string }).tracking_token
+          : "";
+      return { orderId: ref, trackingToken: tok };
     }
     throw new Error(insertErr.message);
   }
@@ -105,5 +137,5 @@ export async function savePaidOrder(input: {
     }
   }
 
-  return ref;
+  return { orderId: ref, trackingToken };
 }

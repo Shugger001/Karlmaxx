@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { cedisToPesewas, formatCedis } from "@/lib/currency";
+import Link from "next/link";
 import { useCallback, useEffect, useId, useState } from "react";
 import styles from "./CheckoutForm.module.css";
 
@@ -37,6 +38,7 @@ export function CheckoutForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paidRef, setPaidRef] = useState<string | null>(null);
+  const [paidTrackToken, setPaidTrackToken] = useState<string | null>(null);
 
   useEffect(() => {
     setFullName((n) => n || (profile?.displayName ?? ""));
@@ -106,15 +108,22 @@ export function CheckoutForm() {
                 reference: response.reference,
                 items,
                 userId: user?.id ?? null,
+                customerEmail: email.trim(),
               }),
             });
-            const data = (await res.json()) as { ok?: boolean; error?: string; orderId?: string };
+            const data = (await res.json()) as {
+              ok?: boolean;
+              error?: string;
+              orderId?: string;
+              trackingToken?: string;
+            };
             if (!res.ok || !data.ok) {
               setError(data.error ?? "Payment verification failed.");
               setBusy(false);
               return;
             }
             setPaidRef(data.orderId ?? response.reference);
+            setPaidTrackToken(data.trackingToken?.trim() || null);
             clearCart();
           } catch {
             setError("Verification request failed.");
@@ -145,6 +154,22 @@ export function CheckoutForm() {
         <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", opacity: 0.85 }}>
           Order reference: <strong>{paidRef}</strong>
         </p>
+        <p style={{ marginTop: "0.65rem", fontSize: "0.85rem", opacity: 0.85 }}>
+          Track delivery with your reference and the email you used at checkout.
+        </p>
+        <div className={styles.trackActions}>
+          <Link href="/track" className={styles.trackLink}>
+            Track your order
+          </Link>
+          {paidTrackToken ? (
+            <Link
+              href={`/track?token=${encodeURIComponent(paidTrackToken)}`}
+              className={styles.trackLinkSecondary}
+            >
+              Open private tracking link
+            </Link>
+          ) : null}
+        </div>
       </div>
     );
   }

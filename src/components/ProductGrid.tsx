@@ -9,6 +9,7 @@ import { displayBrandLabel, groupProductsByBrand } from "@/lib/productGroups";
 import { mapProductRow } from "@/lib/supabase/maps";
 import { useShopSearch } from "@/context/ShopSearchContext";
 import type { Product } from "@/types";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ProductCard } from "./ProductCard";
 import { ProductSkeleton } from "./ProductSkeleton";
@@ -23,12 +24,35 @@ function isStorefrontExcludedCategory(category: string): boolean {
 }
 
 export function ProductGrid() {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const { query, setQuery } = useShopSearch();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   /** Sub-filter when a category chip (Bags, Perfumes, etc.) is active. */
   const [categoryBrandFilter, setCategoryBrandFilter] = useState<"all" | string>("all");
+
+  const qFromUrl = searchParams.get("q") ?? searchParams.get("category") ?? "";
+  useEffect(() => {
+    if (!qFromUrl.trim()) {
+      setQuery("");
+      return;
+    }
+    const decoded = decodeURIComponent(qFromUrl).trim();
+    if (decoded) setQuery(decoded);
+  }, [qFromUrl, setQuery]);
+
+  function syncCatalogUrl(nextQuery: string) {
+    if (pathname !== "/") return;
+    const t = nextQuery.trim();
+    if (!t) {
+      router.replace("/");
+      return;
+    }
+    router.replace(`/?q=${encodeURIComponent(t)}`);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -188,7 +212,10 @@ export function ProductGrid() {
             <button
               type="button"
               className={`${styles.chip} ${trimmedQuery === "" ? styles.chipActive : ""}`}
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("");
+                syncCatalogUrl("");
+              }}
             >
               All
             </button>
@@ -199,7 +226,10 @@ export function ProductGrid() {
                   key={cat}
                   type="button"
                   className={`${styles.chip} ${isActive ? styles.chipActive : ""}`}
-                  onClick={() => setQuery(cat)}
+                  onClick={() => {
+                    setQuery(cat);
+                    syncCatalogUrl(cat);
+                  }}
                 >
                   {cat}
                 </button>

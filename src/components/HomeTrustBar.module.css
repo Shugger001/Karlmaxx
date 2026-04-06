@@ -43,3 +43,14 @@
   line-height: 1.45;
   color: var(--muted);
 }
+
+.inlineLink {
+  color: var(--link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inlineLink:hover {
+  color: var(--accent-hover);
+}

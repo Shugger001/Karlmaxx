@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./HomeTrustBar.module.css";
 
 const ITEMS = [
@@ -11,7 +12,19 @@ const ITEMS = [
   },
   {
     title: "Need help?",
-    body: "Use WhatsApp (when configured) or your account area.",
+    body: (
+      <>
+        Visit{" "}
+        <Link href="/contact" className={styles.inlineLink}>
+          Contact
+        </Link>{" "}
+        or{" "}
+        <Link href="/faq" className={styles.inlineLink}>
+          FAQ
+        </Link>
+        .
+      </>
+    ),
   },
 ] as const;
 

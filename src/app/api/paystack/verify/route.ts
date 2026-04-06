@@ -7,6 +7,8 @@ type VerifyBody = {
   reference?: string;
   items?: CartItem[];
   userId?: string | null;
+  /** Paystack customer email — stored for order tracking lookup. */
+  customerEmail?: string | null;
 };
 
 function isCartItem(x: unknown): x is CartItem {
@@ -105,13 +107,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    const orderId = await savePaidOrder({
+    const saved = await savePaidOrder({
       items,
       total: computed,
       userId: body.userId ?? null,
       paystackReference: reference,
+      customerEmail: body.customerEmail?.trim() || null,
     });
-    return NextResponse.json({ ok: true, orderId });
+    return NextResponse.json({
+      ok: true,
+      orderId: saved.orderId,
+      trackingToken: saved.trackingToken || undefined,
+    });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Order failed";
     return NextResponse.json({ ok: false, error: message }, { status: 409 });

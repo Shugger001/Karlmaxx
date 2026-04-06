@@ -92,13 +92,23 @@ export function Navbar({ onOpenCart }: NavbarProps) {
   function onSearchSubmit(e: FormEvent) {
     e.preventDefault();
     setMenuOpen(false);
+    const q = query.trim();
     if (pathname !== "/") {
-      router.push("/#collection");
-    } else {
-      document
-        .getElementById("collection")
-        ?.scrollIntoView({ behavior: "smooth" });
+      if (q) {
+        router.push(`/?q=${encodeURIComponent(q)}#collection`);
+      } else {
+        router.push("/#collection");
+      }
+      return;
     }
+    if (q) {
+      router.replace(`/?q=${encodeURIComponent(q)}`);
+    } else {
+      router.replace("/");
+    }
+    document
+      .getElementById("collection")
+      ?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
@@ -277,6 +287,48 @@ export function Navbar({ onOpenCart }: NavbarProps) {
           )}
           <Link href="/" className={styles.subLink} onClick={() => setMenuOpen(false)}>
             Shop all
+          </Link>
+          <Link
+            href="/about"
+            className={styles.subLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            About
+          </Link>
+          <Link
+            href="/contact"
+            className={styles.subLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            Contact
+          </Link>
+          <Link
+            href="/faq"
+            className={styles.subLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            FAQ
+          </Link>
+          <Link
+            href="/shipping"
+            className={styles.subLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            Shipping
+          </Link>
+          <Link
+            href="/terms"
+            className={styles.subLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            Terms
+          </Link>
+          <Link
+            href="/track"
+            className={styles.subLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            Track order
           </Link>
           <Link
             href="/checkout"

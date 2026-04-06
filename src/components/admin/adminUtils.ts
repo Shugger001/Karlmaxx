@@ -14,6 +14,10 @@ export function ordersToCsv(orders: Order[]): string {
   const headers = [
     "id",
     "status",
+    "fulfillment_stage",
+    "carrier",
+    "tracking_number",
+    "customer_email",
     "total",
     "user_id",
     "paystack_reference",
@@ -27,6 +31,10 @@ export function ordersToCsv(orders: Order[]): string {
       [
         o.id,
         o.status,
+        o.fulfillmentStage,
+        o.carrier ?? "",
+        o.trackingNumber ?? "",
+        o.customerEmail ?? "",
         String(o.total),
         o.userId ?? "",
         o.paystackReference ?? "",

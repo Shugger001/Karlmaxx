@@ -10,7 +10,8 @@ Apply these in Supabase → SQL (same project as NEXT_PUBLIC_SUPABASE_URL), in o
   8. 008_profiles_role_lockdown.sql
   9. 009_profiles_insert_own.sql
  10. 010_fix_profiles_rls_recursion.sql   ← fixes admin "infinite recursion" (42P17) on profiles
+ 11. 011_order_tracking.sql               ← fulfillment stages, tracking token, customer email for /track
 
-If the dashboard already had 001–006 applied, run only 007–010 (or at minimum 010 if you see 42P17).
+If the dashboard already had 001–006 applied, run only 007–011 (or at minimum 010 if you see 42P17).
 
 After SQL: restart npm run dev, open /admin, run migration 009+010 if profile load or insert fails.

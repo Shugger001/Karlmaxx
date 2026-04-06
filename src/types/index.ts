@@ -49,6 +49,14 @@ export type CartItem = {
 
 export type OrderStatus = "pending" | "paid";
 
+/** Shipment pipeline (separate from payment `status`). */
+export type FulfillmentStage =
+  | "placed"
+  | "preparing"
+  | "shipped"
+  | "out_for_delivery"
+  | "delivered";
+
 export type Order = {
   id: string;
   userId?: string | null;
@@ -57,4 +65,9 @@ export type Order = {
   status: OrderStatus;
   paystackReference?: string | null;
   createdAt: string | null;
+  customerEmail?: string | null;
+  fulfillmentStage: FulfillmentStage;
+  carrier?: string | null;
+  trackingNumber?: string | null;
+  trackingToken?: string | null;
 };

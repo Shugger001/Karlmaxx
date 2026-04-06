@@ -1,6 +1,8 @@
+import { isFulfillmentStage } from "@/lib/fulfillment";
 import type {
   CartItem,
   CustomerProfile,
+  FulfillmentStage,
   Order,
   Product,
   ProductColorOption,
@@ -154,6 +156,15 @@ export function mapOrderRow(row: Record<string, unknown>): Order | null {
   const userId = row.user_id;
   const paystackReference = row.paystack_reference;
   const createdAt = row.created_at;
+  const customerEmail = row.customer_email;
+  const fulfillmentStageRaw = row.fulfillment_stage;
+  const carrier = row.carrier;
+  const trackingNumber = row.tracking_number;
+  const trackingToken = row.tracking_token;
+  const fulfillmentStage: FulfillmentStage =
+    typeof fulfillmentStageRaw === "string" && isFulfillmentStage(fulfillmentStageRaw)
+      ? fulfillmentStageRaw
+      : "placed";
   if (
     typeof id !== "string" ||
     !items ||
@@ -172,5 +183,13 @@ export function mapOrderRow(row: Record<string, unknown>): Order | null {
     paystackReference:
       typeof paystackReference === "string" ? paystackReference : null,
     createdAt: typeof createdAt === "string" ? createdAt : null,
+    customerEmail:
+      typeof customerEmail === "string" ? customerEmail : null,
+    fulfillmentStage,
+    carrier: typeof carrier === "string" ? carrier : null,
+    trackingNumber:
+      typeof trackingNumber === "string" ? trackingNumber : null,
+    trackingToken:
+      typeof trackingToken === "string" ? trackingToken : null,
   };
 }

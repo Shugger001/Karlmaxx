@@ -1,6 +1,7 @@
 import { AppChrome } from "@/components/AppChrome";
 import { Providers } from "@/components/Providers";
 import { SupabaseConfigBanner } from "@/components/SupabaseConfigBanner";
+import { siteUrl } from "@/lib/siteUrl";
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
@@ -12,6 +13,7 @@ const retail = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "Karlmaxx | Menswear & accessories",
     template: "%s | Karlmaxx",

@@ -1,10 +1,11 @@
 "use client";
 
 import { useAdminData } from "@/context/AdminDataContext";
+import { FULFILLMENT_LABELS, FULFILLMENT_STAGES } from "@/lib/fulfillment";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatCedis } from "@/lib/currency";
-import type { Order, OrderStatus } from "@/types";
-import { Fragment, useMemo, useState } from "react";
+import type { FulfillmentStage, Order, OrderStatus } from "@/types";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { downloadTextFile, ordersToCsv } from "../adminUtils";
 import s from "../adminShared.module.css";
 
@@ -17,6 +18,26 @@ export function OrdersView() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [fulfillmentDraft, setFulfillmentDraft] = useState<{
+    stage: FulfillmentStage;
+    carrier: string;
+    trackingNumber: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!expanded) {
+      setFulfillmentDraft(null);
+      return;
+    }
+    const o = orders.find((x) => x.id === expanded);
+    if (o) {
+      setFulfillmentDraft({
+        stage: o.fulfillmentStage,
+        carrier: o.carrier ?? "",
+        trackingNumber: o.trackingNumber ?? "",
+      });
+    }
+  }, [expanded, orders]);
 
   const filtered = useMemo(() => {
     let list = orders;
@@ -59,6 +80,33 @@ export function OrdersView() {
       setMsg({
         ok: false,
         text: "Update failed. Run migration 006_admin_dashboard_rls.sql for admin order updates.",
+      });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const saveFulfillment = async (order: Order) => {
+    if (!supabaseReady || !fulfillmentDraft) return;
+    setBusyId(order.id);
+    setMsg(null);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase
+        .from("orders")
+        .update({
+          fulfillment_stage: fulfillmentDraft.stage,
+          carrier: fulfillmentDraft.carrier.trim() || null,
+          tracking_number: fulfillmentDraft.trackingNumber.trim() || null,
+        })
+        .eq("id", order.id);
+      if (error) throw error;
+      setMsg({ ok: true, text: "Fulfillment updated." });
+      await refresh();
+    } catch {
+      setMsg({
+        ok: false,
+        text: "Fulfillment update failed. Check migration 011 and admin RLS.",
       });
     } finally {
       setBusyId(null);
@@ -111,7 +159,8 @@ export function OrdersView() {
             <thead>
               <tr>
                 <th>Order</th>
-                <th>Status</th>
+                <th>Pay</th>
+                <th>Ship</th>
                 <th>Total</th>
                 <th>Customer</th>
                 <th>Items</th>
@@ -132,6 +181,14 @@ export function OrdersView() {
                       ) : (
                         <span className={s.badgePending}>pending</span>
                       )}
+                    </td>
+                    <td>
+                      <span
+                        className={s.badgeMuted}
+                        title={FULFILLMENT_LABELS[o.fulfillmentStage]}
+                      >
+                        {o.fulfillmentStage.replace(/_/g, " ")}
+                      </span>
                     </td>
                     <td>{formatCedis(o.total)}</td>
                     <td className={s.mono}>{o.userId ?? "guest"}</td>
@@ -173,14 +230,29 @@ export function OrdersView() {
                       </div>
                     </td>
                   </tr>
-                  {expanded === o.id && (
+                  {expanded === o.id && fulfillmentDraft && (
                     <tr>
-                      <td colSpan={6}>
+                      <td colSpan={7}>
                         <div className={s.orderDetail}>
                           <div>
                             <strong>Full ID:</strong>{" "}
                             <span className={s.mono}>{o.id}</span>
                           </div>
+                          {o.customerEmail && (
+                            <div>
+                              <strong>Checkout email:</strong>{" "}
+                              <span className={s.mono}>{o.customerEmail}</span>
+                            </div>
+                          )}
+                          {o.trackingToken && (
+                            <div>
+                              <strong>Tracking token:</strong>{" "}
+                              <span className={s.mono}>{o.trackingToken}</span>{" "}
+                              <span style={{ color: "var(--muted)", fontSize: "0.75rem" }}>
+                                (customer: /track?token=… or paste in Track page)
+                              </span>
+                            </div>
+                          )}
                           {o.paystackReference && (
                             <div>
                               <strong>Paystack ref:</strong>{" "}
@@ -192,6 +264,85 @@ export function OrdersView() {
                             {o.createdAt
                               ? new Date(o.createdAt).toLocaleString()
                               : "—"}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: "0.85rem",
+                              padding: "0.75rem",
+                              border: "1px solid var(--border)",
+                              borderRadius: 8,
+                              display: "grid",
+                              gap: "0.65rem",
+                              maxWidth: 420,
+                            }}
+                          >
+                            <strong>Fulfillment (customer tracking)</strong>
+                            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                              <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                                Stage
+                              </span>
+                              <select
+                                className={s.select}
+                                value={fulfillmentDraft.stage}
+                                disabled={busyId === o.id}
+                                onChange={(e) =>
+                                  setFulfillmentDraft((d) =>
+                                    d
+                                      ? {
+                                          ...d,
+                                          stage: e.target.value as FulfillmentStage,
+                                        }
+                                      : d,
+                                  )
+                                }
+                              >
+                                {FULFILLMENT_STAGES.map((st) => (
+                                  <option key={st} value={st}>
+                                    {FULFILLMENT_LABELS[st]}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                              <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                                Carrier
+                              </span>
+                              <input
+                                className={s.input}
+                                value={fulfillmentDraft.carrier}
+                                disabled={busyId === o.id}
+                                placeholder="e.g. FedEx, GIG"
+                                onChange={(e) =>
+                                  setFulfillmentDraft((d) =>
+                                    d ? { ...d, carrier: e.target.value } : d,
+                                  )
+                                }
+                              />
+                            </label>
+                            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                              <span style={{ fontSize: "0.7rem", color: "var(--muted)" }}>
+                                Tracking number
+                              </span>
+                              <input
+                                className={s.input}
+                                value={fulfillmentDraft.trackingNumber}
+                                disabled={busyId === o.id}
+                                onChange={(e) =>
+                                  setFulfillmentDraft((d) =>
+                                    d ? { ...d, trackingNumber: e.target.value } : d,
+                                  )
+                                }
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              className={s.btnGhost}
+                              style={{ justifySelf: "start" }}
+                              disabled={busyId === o.id || !supabaseReady}
+                              onClick={() => void saveFulfillment(o)}
+                            >
+                              Save fulfillment
+                            </button>
                           </div>
                           <div style={{ marginTop: "0.5rem" }}>
                             <strong>Line items</strong>
