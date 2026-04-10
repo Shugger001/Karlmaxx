@@ -35,3 +35,14 @@ export function preferStableImageUrl(
   }
   return t;
 }
+
+/** Supabase / Pexels / Picsum (https) before on-disk /catalog/* so uploads win as hero. */
+export function prioritizeHostedImageUrls(urls: string[]): string[] {
+  const hosted: string[] = [];
+  const other: string[] = [];
+  for (const u of urls) {
+    if (/^https?:\/\//i.test(u.trim())) hosted.push(u);
+    else other.push(u);
+  }
+  return [...hosted, ...other];
+}

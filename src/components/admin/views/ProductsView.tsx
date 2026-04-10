@@ -243,8 +243,28 @@ export function ProductsView() {
       const supabase = createSupabaseBrowserClient();
       if (editingId) {
         const urls = await uploadNewImages(editingId);
-        const existing = products.find((p) => p.id === editingId);
-        const images = [...(existing?.images ?? []), ...urls];
+        let images: string[] | undefined;
+        if (urls.length) {
+          const { data: row, error: fetchErr } = await supabase
+            .from("products")
+            .select("images")
+            .eq("id", editingId)
+            .single();
+          if (fetchErr) throw fetchErr;
+          const raw = row?.images;
+          const dbImages = Array.isArray(raw)
+            ? raw
+                .filter((x): x is string => typeof x === "string" && x.trim() !== "")
+                .filter((u) => {
+                  const t = u.trim();
+                  return (
+                    !t.startsWith("/catalog/watches/") && !t.startsWith("/catalog/perfumes/")
+                  );
+                })
+            : [];
+          const seen = new Set(urls);
+          images = [...urls, ...dbImages.filter((u) => !seen.has(u))];
+        }
         const { error: upErr } = await supabase
           .from("products")
           .update({
@@ -256,7 +276,7 @@ export function ProductsView() {
             stock,
             featured: form.featured,
             color_options: colorOptions,
-            ...(urls.length ? { images } : {}),
+            ...(images ? { images } : {}),
           })
           .eq("id", editingId);
         if (upErr) throw upErr;
@@ -521,6 +541,10 @@ export function ProductsView() {
               multiple
               onChange={(e) => setFiles(e.target.files)}
             />
+            <p className={s.fieldHint}>
+              New files are saved as the <strong>first</strong> gallery images (hero on the shop).
+              Merging uses your database list only, not placeholder catalog paths.
+            </p>
           </label>
           <div className={s.actions}>
             <button

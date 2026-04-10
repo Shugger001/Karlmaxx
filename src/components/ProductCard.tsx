@@ -2,7 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { formatCedis } from "@/lib/currency";
-import { defaultListingImage, imageForColor } from "@/lib/productDisplay";
+import { defaultListingImage } from "@/lib/productDisplay";
 import { mockRatingForProductId } from "@/lib/mockRating";
 import type { Product } from "@/types";
 import Link from "next/link";
@@ -81,7 +81,7 @@ export function ProductCard({ product, style }: ProductCardProps) {
                 productId: product.id,
                 name: product.name,
                 price: product.price,
-                image: imageForColor(product, defaultColor),
+                image: defaultListingImage(product),
                 ...(defaultColor ? { color: defaultColor } : {}),
               })
             }

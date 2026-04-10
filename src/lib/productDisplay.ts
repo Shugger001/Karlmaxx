@@ -19,7 +19,10 @@ export function imageForColor(product: Product, colorName?: string): string {
   return product.images[0] ?? "/placeholder-product.svg";
 }
 
-/** Ordered gallery: selected variant first, then remaining product images, then other variant shots. */
+/**
+ * Gallery order: when the product has catalog `images` (e.g. admin uploads), those
+ * lead so the PDP hero matches the grid. Otherwise variant-first (placeholder / local-pool SKUs).
+ */
 export function galleryUrls(product: Product, selectedColor?: string): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
@@ -29,9 +32,15 @@ export function galleryUrls(product: Product, selectedColor?: string): string[] 
       out.push(u);
     }
   };
-  push(imageForColor(product, selectedColor));
-  for (const u of product.images) push(u);
-  for (const c of product.colorOptions) push(c.image);
+  if (product.images.length > 0) {
+    for (const u of product.images) push(u);
+    push(imageForColor(product, selectedColor));
+    for (const c of product.colorOptions) push(c.image);
+  } else {
+    push(imageForColor(product, selectedColor));
+    for (const u of product.images) push(u);
+    for (const c of product.colorOptions) push(c.image);
+  }
   if (out.length === 0) push("/placeholder-product.svg");
   return out;
 }

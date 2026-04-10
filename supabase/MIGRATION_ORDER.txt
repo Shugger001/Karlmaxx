@@ -1,3 +1,8 @@
+================================================================================
+DO NOT paste this file into Supabase SQL Editor — it is a checklist only, not SQL.
+Open each numbered file under supabase/migrations/*.sql and run THAT file’s contents.
+================================================================================
+
 Apply these in Supabase → SQL (same project as NEXT_PUBLIC_SUPABASE_URL), in order, once per project.
 
   1. 001_initial.sql
@@ -13,7 +18,8 @@ Apply these in Supabase → SQL (same project as NEXT_PUBLIC_SUPABASE_URL), in o
  11. 011_order_tracking.sql               ← fulfillment stages, tracking token, customer email for /track
  12. 012_order_admin_notes.sql           ← staff-only order notes (admin UI)
  13. 013_bootstrap_admin_profile.sql     ← RPC to create/promote admin profile by auth user id
+ 14. 014_watch_catalog_names_prices.sql   ← DB name/brand/price for local /catalog/watches SKUs
 
-If the dashboard already had 001–006 applied, run only 007–013 (or at minimum 010 if you see 42P17).
+If the dashboard already had 001–006 applied, run only 007–014 (or at minimum 010 if you see 42P17).
 
 After SQL: restart npm run dev, open /admin, run migration 009+010 if profile load or insert fails.

@@ -125,7 +125,7 @@ async function loadProfileOrBootstrap(
   u: User,
   supabase: ReturnType<typeof createSupabaseBrowserClient>,
 ): Promise<UserProfile | null> {
-  let p = await loadProfileWithTimeout(u.id, supabase);
+  const p = await loadProfileWithTimeout(u.id, supabase);
   if (p) return p;
   const attempted = await bootstrapProfileIfMissing(u, supabase);
   if (!attempted) return null;

@@ -2,7 +2,7 @@
 
 import { getSocialLinks } from "@/lib/siteSocial";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { FooterSocialIcon } from "./FooterSocialIcon";
 import styles from "./SiteFooter.module.css";
 
@@ -94,17 +94,13 @@ function TrustIcon({ id }: { id: "pickup" | "returns" | "support" | "secure" }) 
 }
 
 export function SiteFooter() {
-  const [socialLinks, setSocialLinks] = useState<ReturnType<typeof getSocialLinks>>([]);
+  const socialLinks = useMemo(() => getSocialLinks(), []);
   const trustItems = [
     { id: "pickup" as const, title: "Free Store Pickup", subtitle: "Pick up at our store" },
     { id: "returns" as const, title: "Easy Returns", subtitle: "30-day return policy" },
     { id: "support" as const, title: "24/7 Support", subtitle: "Dedicated service" },
     { id: "secure" as const, title: "Secure Payment", subtitle: "Safe checkout" },
   ];
-
-  useEffect(() => {
-    setSocialLinks(getSocialLinks());
-  }, []);
 
   return (
     <footer className={styles.footer}>

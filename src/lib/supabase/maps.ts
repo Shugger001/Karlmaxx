@@ -8,8 +8,16 @@ import type {
   ProductColorOption,
   UserRole,
 } from "@/types";
-import { localCatalogImagePaths } from "@/lib/localCatalogImages";
-import { picsumCatalogImages, preferStableImageUrl } from "@/lib/stableProductImages";
+import {
+  isWatchProductCategory,
+  localCatalogImagePaths,
+} from "@/lib/localCatalogImages";
+import {
+  picsumCatalogImages,
+  preferStableImageUrl,
+  prioritizeHostedImageUrls,
+} from "@/lib/stableProductImages";
+import { watchCatalogModelForGallery } from "@/lib/watchCatalogModels";
 
 function parseCartItems(raw: unknown): CartItem[] | null {
   if (!Array.isArray(raw)) return null;
@@ -95,12 +103,15 @@ export function mapProductRow(row: Record<string, unknown>): Product | null {
   let catalogImages = images
     .filter((x): x is string => typeof x === "string" && x.trim() !== "")
     .map((url, i) => preferStableImageUrl(url, id, `catalog-${i}`));
+  /* Local /public/catalog pools are fallbacks when the DB has no images — do not replace uploads. */
+  if (catalogImages.length === 0 && localGallery) {
+    catalogImages = localGallery;
+  }
   if (catalogImages.length === 0) {
     catalogImages = picsumCatalogImages(id);
   }
-  if (localGallery) {
-    catalogImages = localGallery;
-  }
+
+  catalogImages = prioritizeHostedImageUrls(catalogImages);
 
   /** Only attach `image` when the DB provides a URL per colour — no placeholder or pool rotation. */
   const colorOptions = parseColorOptions(colorRaw).map((c, i) => {
@@ -116,11 +127,23 @@ export function mapProductRow(row: Record<string, unknown>): Product | null {
     };
   });
 
+  let displayName = name;
+  let displayBrand = brand;
+  let displayPrice = price;
+  if (isWatchProductCategory(category)) {
+    const wc = watchCatalogModelForGallery(catalogImages);
+    if (wc) {
+      displayName = wc.name;
+      displayBrand = wc.brand;
+      displayPrice = wc.priceGhs;
+    }
+  }
+
   return {
     id,
-    name,
-    brand,
-    price,
+    name: displayName,
+    brand: displayBrand,
+    price: displayPrice,
     category,
     images: catalogImages,
     description: typeof description === "string" ? description : "",

@@ -8,7 +8,7 @@ import {
 } from "@/lib/supabase/client";
 import { formatCedis } from "@/lib/currency";
 import { mockRatingForProductId } from "@/lib/mockRating";
-import { galleryUrls, imageForColor } from "@/lib/productDisplay";
+import { galleryUrls } from "@/lib/productDisplay";
 import { isEligibleRelatedProduct } from "@/lib/storefrontFilters";
 import { mapProductRow } from "@/lib/supabase/maps";
 import type { Product } from "@/types";
@@ -186,7 +186,7 @@ export function ProductDetail({ productId }: Props) {
 
   const mainImage = urls[0] ?? "/placeholder-product.svg";
   const inStock = product.stock > 0;
-  const cartImage = imageForColor(product, selectedColor);
+  const cartImage = mainImage;
 
   return (
     <Fragment>
