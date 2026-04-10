@@ -15,7 +15,9 @@
     "start": "next start",
     "start:karlmaxx": "next start -p 3030",
     "lint": "eslint",
-    "verify:supabase": "node scripts/verify-supabase.mjs"
+    "verify:supabase": "node scripts/verify-supabase.mjs",
+    "deploy:vercel": "npx vercel@latest deploy --prod",
+    "deploy:vercel:preview": "npx vercel@latest deploy"
   },
   "dependencies": {
     "@supabase/ssr": "^0.9.0",

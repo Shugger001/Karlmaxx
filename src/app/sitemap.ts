@@ -12,6 +12,7 @@ const STATIC_PATHS = [
   { path: "/contact", changeFrequency: "monthly" as const, priority: 0.7 },
   { path: "/faq", changeFrequency: "weekly" as const, priority: 0.65 },
   { path: "/shipping", changeFrequency: "monthly" as const, priority: 0.6 },
+  { path: "/returns", changeFrequency: "monthly" as const, priority: 0.62 },
   { path: "/privacy", changeFrequency: "yearly" as const, priority: 0.4 },
   { path: "/terms", changeFrequency: "yearly" as const, priority: 0.4 },
 ] satisfies ReadonlyArray<{

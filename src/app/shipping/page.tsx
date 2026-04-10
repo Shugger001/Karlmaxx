@@ -27,6 +27,10 @@ export default function ShippingPage() {
         checkout or by email.
       </p>
       <h2>Returns & exchanges</h2>
+      <p>
+        For step-by-step return instructions, timelines, and eligibility, see{" "}
+        <Link href="/returns">Returns &amp; refunds</Link>.
+      </p>
       <ul>
         <li>Contact us within 7 days of delivery if an item is wrong or faulty.</li>
         <li>Items should be unused, with tags and original packaging where possible.</li>

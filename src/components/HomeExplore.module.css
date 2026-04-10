@@ -1,93 +1,371 @@
 .section {
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  position: relative;
+}
+
+.cardReveal {
+  height: 100%;
+}
+
+/* Match sarahlawsonimports.com/categories hero: emerald band + texture + centered type */
+.heroShell {
+  position: relative;
+  overflow: hidden;
+  background: #064e3b;
+  text-align: center;
+}
+
+.heroPattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  pointer-events: none;
+  background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 6rem 1rem;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+@keyframes heroTitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroSubIn {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.heroTitle {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 0 0 1.5rem;
+  line-height: 1.15;
+  animation: heroTitleIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.heroSub {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  line-height: 1.625;
+  color: #d1fae5;
+  max-width: 48rem;
+  margin: 0 auto;
+  animation: heroSubIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
 .inner {
-  max-width: 1200px;
+  max-width: 80rem;
   margin: 0 auto;
-  padding: clamp(1.75rem, 5vw, 2.75rem) clamp(1.25rem, 4vw, 3rem);
-}
-
-.intro {
-  margin-bottom: 1.35rem;
-  max-width: 560px;
-}
-
-.title {
-  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--foreground);
-  margin-bottom: 0.4rem;
-}
-
-.sub {
-  font-size: 0.88rem;
-  line-height: 1.55;
-  color: var(--muted);
+  padding: 4rem 1rem;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
 }
 
 .grid {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.item {
+  min-width: 0;
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
+  align-items: stretch;
+  gap: 0;
   height: 100%;
-  min-height: 128px;
-  padding: 1rem 1.1rem;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: linear-gradient(165deg, #fff 0%, #f6f8f8 100%);
-  box-shadow: 0 2px 8px rgba(15, 17, 17, 0.04);
+  min-height: 338px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease,
+    box-shadow 0.35s ease,
     transform 0.2s ease;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .card:hover {
-  border-color: rgba(0, 113, 133, 0.35);
-  box-shadow: 0 8px 22px rgba(15, 17, 17, 0.08);
-  transform: translateY(-2px);
+  border-color: #d1d5db;
+  box-shadow:
+    0 25px 50px -12px rgba(16, 24, 40, 0.22),
+    0 12px 24px rgba(16, 24, 40, 0.1);
+}
+
+/* Match sarahlawsonimports.com/categories: static image, hover scale-110 @500ms + tint overlay */
+.cardImageWrap {
+  position: relative;
+  height: 192px;
+  overflow: hidden;
+  border-bottom: 1px solid #edf1f5;
+}
+
+.cardImage {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.5s ease;
+}
+
+.card:hover .cardImage {
+  transform: scale(1.1);
+}
+
+.cardImageOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.card:hover .cardImageOverlay {
+  opacity: 0.2;
+}
+
+.cardImageOverlay_green {
+  background: linear-gradient(to top, #10b981, #047857);
+}
+
+.cardImageOverlay_blue {
+  background: linear-gradient(to top, #3b82f6, #1d4ed8);
+}
+
+.cardImageOverlay_purple {
+  background: linear-gradient(to top, #8b5cf6, #6d28d9);
+}
+
+.cardImageOverlay_amber {
+  background: linear-gradient(to top, #f59e0b, #b45309);
+}
+
+.cardImageOverlay_rose {
+  background: linear-gradient(to top, #fb7185, #be123c);
+}
+
+.cardImageOverlay_indigo {
+  background: linear-gradient(to top, #6366f1, #4338ca);
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1rem 1.15rem;
+  min-height: 154px;
+}
+
+.cardHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.iconDot {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.iconDot_green {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.iconDot_blue {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.iconDot_purple {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+
+.iconDot_amber {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.iconDot_rose {
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+}
+
+.iconDot_indigo {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
 }
 
 .card:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid #0f766e;
   outline-offset: 2px;
 }
 
 .cardKicker {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
+  display: block;
+  margin-top: 0.05rem;
+  font-size: 0.82rem;
+  color: #667085;
 }
 
 .cardTitle {
-  font-size: 0.95rem;
+  display: block;
+  font-size: 1.46rem;
   font-weight: 700;
-  color: var(--foreground);
-  line-height: 1.25;
+  color: #101828;
+  line-height: 1.2;
 }
 
 .cardBlurb {
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: #475467;
+  margin-top: 0.35rem;
+}
+
+.cardCtaRow {
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: gap 0.35s ease;
+}
+
+.card:hover .cardCtaRow {
+  gap: 0.5rem;
+}
+
+.cardCta {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #047857;
+  letter-spacing: 0.01em;
+}
+
+.cardCtaArrow {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #047857;
+  line-height: 1;
+  transition: transform 0.35s ease;
+}
+
+.card:hover .cardCtaArrow {
+  transform: translateX(2px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card:hover {
+  .heroTitle,
+  .heroSub {
+    animation: none;
+    opacity: 1;
     transform: none;
+  }
+
+  .card:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  .cardImage {
+    transition: none;
+  }
+
+  .card:hover .cardImage {
+    transform: none;
+  }
+
+  .cardImageOverlay {
+    transition: none;
+  }
+
+  .card:hover .cardImageOverlay {
+    opacity: 0;
+  }
+
+  .cardCtaRow {
+    transition: none;
+  }
+
+  .card:hover .cardCtaRow {
+    gap: 0.35rem;
+  }
+
+  .cardCtaArrow {
+    transition: none;
+  }
+
+  .card:hover .cardCtaArrow {
+    transform: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .heroInner {
+    padding: 4rem 1rem;
+  }
+
+  .inner {
+    padding: 2.5rem 1rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .card {
+    min-height: 310px;
+  }
+
+  .cardImageWrap {
+    height: 156px;
+  }
+
+  .cardBody {
+    min-height: 146px;
+  }
+
+  .cardTitle {
+    font-size: 1.24rem;
+  }
+
+  .cardBlurb {
+    font-size: 0.9rem;
   }
 }

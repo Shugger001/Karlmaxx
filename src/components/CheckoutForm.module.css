@@ -1,6 +1,6 @@
 .wrap {
   display: grid;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 900px) {
@@ -14,6 +14,11 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+  border-radius: 16px;
+  padding: 1.25rem;
+  background: var(--surface);
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
 }
 
 .label {
@@ -34,15 +39,15 @@
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--foreground);
-  border-radius: 2px;
+  border-radius: 12px;
   font-size: 0.95rem;
   transition: border-color 0.2s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--link);
-  box-shadow: 0 0 0 1px var(--link);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .hint {
@@ -65,11 +70,13 @@
   letter-spacing: 0.01em;
   text-transform: none;
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
   background: var(--cta-yellow);
-  color: var(--foreground);
-  box-shadow: inset 0 0 0 1px #fcd200;
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 10px 20px rgba(17, 24, 39, 0.18);
   transition:
     background 0.15s ease,
     transform 0.15s ease;
@@ -91,18 +98,18 @@
   font-weight: 500;
   letter-spacing: 0.01em;
   text-transform: none;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
-  background: #fff;
-  color: var(--foreground);
-  border: 1px solid var(--border);
+  background: #f8f9ff;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--border) 75%, var(--accent) 25%);
   transition:
     background 0.15s ease,
     transform 0.15s ease;
 }
 
 .waBtn:hover:not(:disabled) {
-  background: #f7f8f8;
+  background: #efedff;
   transform: translateY(-1px);
 }
 
@@ -132,12 +139,12 @@
 
 .success {
   padding: 1.25rem;
-  border: 1px solid var(--border);
-  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 80%, #fff 20%);
   color: var(--foreground);
   font-size: 0.95rem;
   line-height: 1.55;
-  border-radius: 2px;
+  border-radius: 14px;
   animation: fadeUp 0.5s ease both;
 }
 
@@ -154,10 +161,12 @@
   padding: 0.55rem 1rem;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: #fff;
   background: var(--cta-yellow);
-  border-radius: 12px;
-  box-shadow: inset 0 0 0 1px #fcd200;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 8px 16px rgba(17, 24, 39, 0.18);
   text-decoration: none;
   transition: background 0.15s ease;
 }
@@ -171,7 +180,7 @@
   padding: 0.55rem 1rem;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: var(--accent);
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -195,11 +204,11 @@
 }
 
 .summary {
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--border) 75%, var(--accent) 25%);
   padding: 1.5rem;
   background: var(--surface);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(15, 17, 17, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(16, 24, 40, 0.07);
 }
 
 .summary h3 {
@@ -235,4 +244,38 @@
   color: var(--foreground);
   font-size: 1.08rem;
   letter-spacing: 0.04em;
+}
+
+@media (max-width: 700px) {
+  .wrap {
+    gap: 1rem;
+  }
+
+  .form {
+    padding: 1rem;
+    border-radius: 14px;
+    gap: 1rem;
+  }
+
+  .label span {
+    letter-spacing: 0.12em;
+  }
+
+  .input {
+    padding: 0.75rem 0.9rem;
+  }
+
+  .payBtn,
+  .waBtn {
+    min-height: 44px;
+  }
+
+  .summary {
+    border-radius: 14px;
+    padding: 1.05rem;
+  }
+
+  .line {
+    font-size: 0.8rem;
+  }
 }

@@ -2,32 +2,11 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { cedisToPesewas, formatCedis } from "@/lib/currency";
+import { formatCedis } from "@/lib/currency";
+import { getClientPaymentUi, startClientPayment } from "@/lib/payments/client";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useState } from "react";
 import styles from "./CheckoutForm.module.css";
-
-function loadPaystackScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (typeof window !== "undefined" && window.PaystackPop) {
-      resolve();
-      return;
-    }
-    const existing = document.getElementById("paystack-inline-js");
-    if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error("Paystack script failed")));
-      return;
-    }
-    const s = document.createElement("script");
-    s.id = "paystack-inline-js";
-    s.src = "https://js.paystack.co/v1/inline.js";
-    s.async = true;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error("Paystack script failed"));
-    document.body.appendChild(s);
-  });
-}
 
 export function CheckoutForm() {
   const { user, profile } = useAuth();
@@ -45,7 +24,7 @@ export function CheckoutForm() {
     setEmail((e) => e || (profile?.email ?? user?.email ?? ""));
   }, [profile?.displayName, profile?.email, user?.email]);
 
-  const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ?? "";
+  const paymentUi = getClientPaymentUi();
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
 
   const openWhatsApp = useCallback(() => {
@@ -68,7 +47,7 @@ export function CheckoutForm() {
     window.open(url, "_blank", "noopener,noreferrer");
   }, [whatsappNumber, items, fullName, subtotal, email]);
 
-  const payWithPaystack = useCallback(async () => {
+  const payWithProvider = useCallback(async () => {
     setError(null);
     if (items.length === 0) {
       setError("Your cart is empty.");
@@ -78,27 +57,19 @@ export function CheckoutForm() {
       setError("Email is required for card payment.");
       return;
     }
-    if (!publicKey) {
-      setError("Paystack is not configured.");
+    if (!paymentUi.configured) {
+      setError(`${paymentUi.label} is not configured.`);
       return;
     }
     setBusy(true);
     try {
-      await loadPaystackScript();
-      const PaystackPop = window.PaystackPop;
-      if (!PaystackPop) {
-        setError("Payment could not load. Try again.");
-        setBusy(false);
-        return;
-      }
-      const reference = `kmx_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-      const handler = PaystackPop.setup({
-        key: publicKey,
+      await startClientPayment({
+        amountCedis: subtotal,
         email: email.trim(),
-        amount: cedisToPesewas(subtotal),
-        ref: reference,
-        currency: "GHS",
-        callback: async (response) => {
+        fullName,
+        items,
+        userId: user?.id ?? null,
+        onSuccess: async (response) => {
           setBusy(true);
           try {
             const res = await fetch("/api/paystack/verify", {
@@ -134,18 +105,17 @@ export function CheckoutForm() {
         onClose: () => {
           setBusy(false);
         },
-        metadata: {
-          custom_fields: [
-            { display_name: "Customer", variable_name: "customer_name", value: fullName || "Guest" },
-          ],
-        },
       });
-      handler.openIframe();
-    } catch {
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "";
+      if (message) {
+        setError(message);
+      } else {
       setError("Could not start checkout.");
+      }
       setBusy(false);
     }
-  }, [items, email, publicKey, subtotal, user?.id, clearCart, fullName]);
+  }, [items, email, paymentUi.configured, paymentUi.label, subtotal, fullName, user?.id, clearCart]);
 
   if (paidRef) {
     return (
@@ -210,9 +180,9 @@ export function CheckoutForm() {
             type="button"
             className={styles.payBtn}
             disabled={busy || items.length === 0}
-            onClick={() => void payWithPaystack()}
+            onClick={() => void payWithProvider()}
           >
-            {busy ? "Processing…" : "Pay with Paystack"}
+            {busy ? "Processing…" : paymentUi.cta}
           </button>
           <button
             type="button"
@@ -223,9 +193,9 @@ export function CheckoutForm() {
             Checkout via WhatsApp
           </button>
         </div>
-        {!publicKey && (
+        {!paymentUi.configured && (
           <p className={styles.hint}>
-            Set NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY to enable card payments.
+            Configure {paymentUi.label} keys to enable card payments.
           </p>
         )}
         {!whatsappNumber && (

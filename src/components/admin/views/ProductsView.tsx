@@ -12,8 +12,8 @@ import { mapProductRow } from "@/lib/supabase/maps";
 import { WATCH_BRAND_SUGGESTIONS } from "@/lib/watchBrandSuggestions";
 import type { Product, ProductColorOption } from "@/types";
 import Image from "next/image";
-import { useMemo, useState, type FormEvent } from "react";
-import { categoryCounts } from "../adminUtils";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { categoryCounts, downloadTextFile, productsToCsv } from "../adminUtils";
 import s from "../adminShared.module.css";
 
 const STORAGE_BUCKET = "product-images";
@@ -62,6 +62,8 @@ export function ProductsView() {
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(
     null,
   );
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const headerSelectRef = useRef<HTMLInputElement>(null);
 
   const categories = useMemo(
     () => categoryCounts(products.map((p) => p.category)).map((c) => c.name),
@@ -100,6 +102,95 @@ export function ProductsView() {
     }
     return list;
   }, [products, q, cat, lowOnly]);
+
+  const selectedInView = useMemo(
+    () => filtered.filter((p) => selectedIds.includes(p.id)),
+    [filtered, selectedIds],
+  );
+  const allInViewSelected =
+    filtered.length > 0 && selectedInView.length === filtered.length;
+
+  useEffect(() => {
+    const el = headerSelectRef.current;
+    if (!el) return;
+    el.indeterminate =
+      selectedInView.length > 0 && selectedInView.length < filtered.length;
+  }, [filtered.length, selectedInView.length]);
+
+  const toggleSelectId = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const toggleSelectAllInView = () => {
+    const ids = new Set(filtered.map((p) => p.id));
+    if (allInViewSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !ids.has(id)));
+    } else {
+      setSelectedIds((prev) => [...new Set([...prev, ...ids])]);
+    }
+  };
+
+  const clearSelection = () => setSelectedIds([]);
+
+  const exportSelectedCsv = () => {
+    const rows = products.filter((p) => selectedIds.includes(p.id));
+    if (rows.length === 0) return;
+    downloadTextFile(
+      `products-export-${new Date().toISOString().slice(0, 10)}.csv`,
+      productsToCsv(rows),
+    );
+  };
+
+  const bulkSetFeatured = async (featured: boolean) => {
+    if (!isSupabaseConfigured() || selectedIds.length === 0) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase
+        .from("products")
+        .update({ featured })
+        .in("id", selectedIds);
+      if (error) throw error;
+      setMessage({
+        type: "ok",
+        text: `Updated featured=${featured} for ${selectedIds.length} products.`,
+      });
+      await refresh();
+    } catch {
+      setMessage({ type: "err", text: "Bulk update failed." });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const bulkDeleteSelected = async () => {
+    if (!isSupabaseConfigured() || selectedIds.length === 0) return;
+    if (
+      !window.confirm(
+        `Permanently delete ${selectedIds.length} product(s)? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.from("products").delete().in("id", selectedIds);
+      if (error) throw error;
+      if (editingId && selectedIds.includes(editingId)) resetForm();
+      setSelectedIds([]);
+      setMessage({ type: "ok", text: "Products deleted." });
+      await refresh();
+    } catch {
+      setMessage({ type: "err", text: "Bulk delete failed." });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -489,6 +580,60 @@ export function ProductsView() {
             Low stock (1–5)
           </label>
         </div>
+        {selectedIds.length > 0 && (
+          <div
+            className={s.toolbar}
+            style={{
+              marginTop: "0.65rem",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
+              {selectedIds.length} selected
+            </span>
+            <button
+              type="button"
+              className={s.btnGhost}
+              disabled={!supabaseReady || busy}
+              onClick={() => void bulkSetFeatured(true)}
+            >
+              Featured on
+            </button>
+            <button
+              type="button"
+              className={s.btnGhost}
+              disabled={!supabaseReady || busy}
+              onClick={() => void bulkSetFeatured(false)}
+            >
+              Featured off
+            </button>
+            <button
+              type="button"
+              className={s.btnGhost}
+              disabled={selectedIds.length === 0}
+              onClick={exportSelectedCsv}
+            >
+              Export CSV
+            </button>
+            <button
+              type="button"
+              className={s.btnDanger}
+              disabled={!supabaseReady || busy}
+              onClick={() => void bulkDeleteSelected()}
+            >
+              Delete selected
+            </button>
+            <button
+              type="button"
+              className={s.btnGhost}
+              onClick={clearSelection}
+            >
+              Clear selection
+            </button>
+          </div>
+        )}
         {loading ? (
           <p className={s.msg}>Loading…</p>
         ) : (
@@ -496,6 +641,16 @@ export function ProductsView() {
             <table className={s.table}>
               <thead>
                 <tr>
+                  <th style={{ width: 36 }}>
+                    <input
+                      ref={headerSelectRef}
+                      type="checkbox"
+                      checked={allInViewSelected}
+                      title="Select all in this list"
+                      aria-label="Select all products in this list"
+                      onChange={toggleSelectAllInView}
+                    />
+                  </th>
                   <th />
                   <th>Name</th>
                   <th>Brand</th>
@@ -510,14 +665,24 @@ export function ProductsView() {
                 {filtered.map((p) => (
                   <tr key={p.id}>
                     <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(p.id)}
+                        aria-label={`Select ${p.name}`}
+                        onChange={() => toggleSelectId(p.id)}
+                      />
+                    </td>
+                    <td>
                       {p.images[0] ? (
-                        <Image
-                          className={s.thumb}
-                          src={p.images[0]}
-                          alt=""
-                          width={40}
-                          height={52}
-                        />
+                        <span className={s.thumbClip}>
+                          <Image
+                            className={`${s.thumb} photo-surface-motion-subtle`}
+                            src={p.images[0]}
+                            alt=""
+                            width={40}
+                            height={52}
+                          />
+                        </span>
                       ) : (
                         <span className={s.thumb} />
                       )}

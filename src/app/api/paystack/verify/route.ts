@@ -1,5 +1,5 @@
-import { isSupabaseServiceConfigured } from "@/lib/supabase/admin";
-import { computeOrderTotalFromProducts, savePaidOrder } from "@/lib/orders";
+import { finalizePaystackPayment } from "@/lib/payments/paystack.server";
+import { getPaymentProviderId } from "@/lib/payments/provider";
 import type { CartItem } from "@/types";
 import { NextResponse } from "next/server";
 
@@ -11,33 +11,12 @@ type VerifyBody = {
   customerEmail?: string | null;
 };
 
-function isCartItem(x: unknown): x is CartItem {
-  if (!x || typeof x !== "object") return false;
-  const o = x as Record<string, unknown>;
-  const colorOk = o.color === undefined || typeof o.color === "string";
-  return (
-    typeof o.productId === "string" &&
-    typeof o.name === "string" &&
-    typeof o.price === "number" &&
-    typeof o.quantity === "number" &&
-    typeof o.image === "string" &&
-    colorOk
-  );
-}
-
 export async function POST(request: Request) {
-  const secret = process.env.PAYSTACK_SECRET_KEY;
-  if (!secret) {
+  const provider = getPaymentProviderId();
+  if (provider !== "paystack") {
     return NextResponse.json(
-      { ok: false, error: "Paystack secret not configured" },
-      { status: 503 },
-    );
-  }
-
-  if (!isSupabaseServiceConfigured()) {
-    return NextResponse.json(
-      { ok: false, error: "Supabase service role not configured" },
-      { status: 503 },
+      { ok: false, error: `Payment verify route unavailable for provider: ${provider}` },
+      { status: 400 },
     );
   }
 
@@ -57,61 +36,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!items.every(isCartItem)) {
-    return NextResponse.json({ ok: false, error: "Invalid cart items" }, { status: 400 });
-  }
-
-  const paystackRes = await fetch(
-    `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${secret}`,
-      },
-    },
-  );
-
-  const paystackData = (await paystackRes.json()) as {
-    status?: boolean;
-    message?: string;
-    data?: { status?: string; amount?: number };
-  };
-
-  if (!paystackRes.ok || !paystackData.status || paystackData.data?.status !== "success") {
-    return NextResponse.json(
-      { ok: false, error: paystackData.message ?? "Verification failed" },
-      { status: 402 },
-    );
-  }
-
-  /** Smallest currency unit (pesewas for GHS). */
-  const amountMinor = paystackData.data?.amount;
-  if (typeof amountMinor !== "number") {
-    return NextResponse.json({ ok: false, error: "Invalid Paystack response" }, { status: 502 });
-  }
-
-  const paidCedis = amountMinor / 100;
-
-  const computed = await computeOrderTotalFromProducts(items);
-  if (computed === null) {
-    return NextResponse.json(
-      { ok: false, error: "Could not validate order against catalog" },
-      { status: 400 },
-    );
-  }
-
-  if (Math.abs(computed - paidCedis) > 0.02) {
-    return NextResponse.json(
-      { ok: false, error: "Paid amount does not match order total" },
-      { status: 400 },
-    );
-  }
-
   try {
-    const saved = await savePaidOrder({
+    const saved = await finalizePaystackPayment({
+      reference,
       items,
-      total: computed,
       userId: body.userId ?? null,
-      paystackReference: reference,
       customerEmail: body.customerEmail?.trim() || null,
     });
     return NextResponse.json({

@@ -7,8 +7,8 @@ export default function CheckoutPage() {
       <header className={styles.header}>
         <h1 className={styles.title}>Checkout</h1>
         <p className={styles.lead}>
-          Complete your purchase securely with Paystack, or reach our concierge on
-          WhatsApp.
+          Complete your order with secure payment and premium support. Prefer chat?
+          Checkout via WhatsApp in one tap.
         </p>
       </header>
       <CheckoutForm />

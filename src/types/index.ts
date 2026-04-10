@@ -70,4 +70,6 @@ export type Order = {
   carrier?: string | null;
   trackingNumber?: string | null;
   trackingToken?: string | null;
+  /** Staff-only; stored in DB, not exposed on customer tracking. */
+  adminNotes?: string | null;
 };

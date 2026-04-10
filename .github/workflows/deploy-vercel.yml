@@ -1,0 +1,57 @@
+# Deploy to Vercel after CI passes (push only — not pull_request runs).
+#
+# GitHub → Settings → Secrets and variables → Actions:
+#   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+#
+#   main    → production (--prod)
+#   staging → preview URL (no --prod)
+#
+# If Vercel Git integration is also enabled for this repo, disable one path
+# to avoid duplicate deploys.
+
+name: Deploy Vercel
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+concurrency:
+  group: vercel-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  production:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+          working-directory: .
+
+  preview:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'staging' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: .

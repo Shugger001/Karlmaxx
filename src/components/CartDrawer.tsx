@@ -75,6 +75,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     fill
                     sizes="72px"
                     style={{ objectFit: "cover" }}
+                    photoMotionVariant="subtle"
                   />
                 </div>
                 <div className={styles.meta}>

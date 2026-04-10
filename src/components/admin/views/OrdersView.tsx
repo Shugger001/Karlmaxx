@@ -9,11 +9,18 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { downloadTextFile, ordersToCsv } from "../adminUtils";
 import s from "../adminShared.module.css";
 
-type Filter = "all" | OrderStatus;
+/** Quick views: payment + fulfillment presets for faster triage. */
+type OrderPreset =
+  | "all"
+  | "pending_pay"
+  | "paid_all"
+  | "paid_open"
+  | "in_transit"
+  | "delivered_only";
 
 export function OrdersView() {
   const { orders, loading, refresh, supabaseReady } = useAdminData();
-  const [filter, setFilter] = useState<Filter>("all");
+  const [preset, setPreset] = useState<OrderPreset>("all");
   const [q, setQ] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -23,10 +30,12 @@ export function OrdersView() {
     carrier: string;
     trackingNumber: string;
   } | null>(null);
+  const [notesDraft, setNotesDraft] = useState("");
 
   useEffect(() => {
     if (!expanded) {
       setFulfillmentDraft(null);
+      setNotesDraft("");
       return;
     }
     const o = orders.find((x) => x.id === expanded);
@@ -36,13 +45,39 @@ export function OrdersView() {
         carrier: o.carrier ?? "",
         trackingNumber: o.trackingNumber ?? "",
       });
+      setNotesDraft(o.adminNotes ?? "");
     }
   }, [expanded, orders]);
 
   const filtered = useMemo(() => {
     let list = orders;
-    if (filter !== "all") {
-      list = list.filter((o) => o.status === filter);
+    switch (preset) {
+      case "pending_pay":
+        list = list.filter((o) => o.status === "pending");
+        break;
+      case "paid_all":
+        list = list.filter((o) => o.status === "paid");
+        break;
+      case "paid_open":
+        list = list.filter(
+          (o) => o.status === "paid" && o.fulfillmentStage !== "delivered",
+        );
+        break;
+      case "in_transit":
+        list = list.filter(
+          (o) =>
+            o.status === "paid" &&
+            (o.fulfillmentStage === "shipped" ||
+              o.fulfillmentStage === "out_for_delivery"),
+        );
+        break;
+      case "delivered_only":
+        list = list.filter(
+          (o) => o.status === "paid" && o.fulfillmentStage === "delivered",
+        );
+        break;
+      default:
+        break;
     }
     const needle = q.trim().toLowerCase();
     if (needle) {
@@ -50,11 +85,13 @@ export function OrdersView() {
         (o) =>
           o.id.toLowerCase().includes(needle) ||
           (o.paystackReference?.toLowerCase().includes(needle) ?? false) ||
-          (o.userId?.toLowerCase().includes(needle) ?? false),
+          (o.userId?.toLowerCase().includes(needle) ?? false) ||
+          (o.customerEmail?.toLowerCase().includes(needle) ?? false) ||
+          (o.trackingNumber?.toLowerCase().includes(needle) ?? false),
       );
     }
     return list;
-  }, [orders, filter, q]);
+  }, [orders, preset, q]);
 
   const exportCsv = () => {
     downloadTextFile(
@@ -80,6 +117,29 @@ export function OrdersView() {
       setMsg({
         ok: false,
         text: "Update failed. Run migration 006_admin_dashboard_rls.sql for admin order updates.",
+      });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const saveAdminNotes = async (order: Order) => {
+    if (!supabaseReady) return;
+    setBusyId(order.id);
+    setMsg(null);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase
+        .from("orders")
+        .update({ admin_notes: notesDraft.trim() || null })
+        .eq("id", order.id);
+      if (error) throw error;
+      setMsg({ ok: true, text: "Notes saved." });
+      await refresh();
+    } catch {
+      setMsg({
+        ok: false,
+        text: "Could not save notes. Run migration 012_order_admin_notes.sql and check admin RLS.",
       });
     } finally {
       setBusyId(null);
@@ -130,12 +190,17 @@ export function OrdersView() {
         />
         <select
           className={s.select}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as Filter)}
+          value={preset}
+          onChange={(e) => setPreset(e.target.value as OrderPreset)}
+          title="Quick views combine payment and fulfillment"
+          aria-label="Order quick view"
         >
-          <option value="all">All statuses</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
+          <option value="all">All orders</option>
+          <option value="pending_pay">Pending payment</option>
+          <option value="paid_all">Paid — any stage</option>
+          <option value="paid_open">Paid — not delivered yet</option>
+          <option value="in_transit">Paid — in transit</option>
+          <option value="delivered_only">Paid — delivered</option>
         </select>
         <button
           type="button"
@@ -342,6 +407,50 @@ export function OrdersView() {
                               onClick={() => void saveFulfillment(o)}
                             >
                               Save fulfillment
+                            </button>
+                          </div>
+                          <div
+                            style={{
+                              marginTop: "0.85rem",
+                              padding: "0.75rem",
+                              border: "1px solid var(--border)",
+                              borderRadius: 8,
+                              maxWidth: 520,
+                            }}
+                          >
+                            <strong>Internal notes</strong>
+                            <p
+                              style={{
+                                margin: "0.35rem 0 0.5rem",
+                                fontSize: "0.72rem",
+                                color: "var(--muted)",
+                              }}
+                            >
+                              Staff only — not shown to customers or on tracking.
+                            </p>
+                            <textarea
+                              className={s.input}
+                              rows={4}
+                              value={notesDraft}
+                              disabled={busyId === o.id || !supabaseReady}
+                              placeholder="e.g. called customer, reship Tuesday…"
+                              onChange={(e) => setNotesDraft(e.target.value)}
+                              style={{
+                                width: "100%",
+                                resize: "vertical",
+                                minHeight: "4.5rem",
+                                fontFamily: "inherit",
+                                lineHeight: 1.45,
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className={s.btnGhost}
+                              style={{ marginTop: "0.5rem" }}
+                              disabled={busyId === o.id || !supabaseReady}
+                              onClick={() => void saveAdminNotes(o)}
+                            >
+                              Save notes
                             </button>
                           </div>
                           <div style={{ marginTop: "0.5rem" }}>

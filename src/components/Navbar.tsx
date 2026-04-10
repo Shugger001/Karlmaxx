@@ -13,6 +13,19 @@ type NavbarProps = {
   onOpenCart: () => void;
 };
 
+function BrandMark({ className }: { className: string }) {
+  return (
+    <span className={className} aria-hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <path
+          d="M4 4h5.2l2.8 4.2L14.8 4H20l-5.45 8L20 20h-5.2L12 15.8 9.2 20H4l5.45-8L4 4z"
+          fill="currentColor"
+        />
+      </svg>
+    </span>
+  );
+}
+
 function oauthAvatarUrl(user: { user_metadata?: Record<string, unknown> } | null): string | null {
   if (!user?.user_metadata) return null;
   const m = user.user_metadata;
@@ -49,7 +62,7 @@ function ClientProfileMark({
           alt=""
           fill
           sizes={`${pixel}px`}
-          className={styles.profilePhoto}
+          className={`${styles.profilePhoto} photo-surface-motion-subtle`}
         />
       ) : (
         initials
@@ -117,9 +130,11 @@ export function Navbar({ onOpenCart }: NavbarProps) {
         <div className={styles.row}>
           <Link
             href="/"
+            prefetch={false}
             className={styles.brand}
             onClick={() => setMenuOpen(false)}
           >
+            <BrandMark className={styles.brandMark} />
             <span className={styles.brandMain}>Karlmaxx</span>
             <span className={styles.brandSub}>Investment Limited</span>
           </Link>
@@ -159,12 +174,13 @@ export function Navbar({ onOpenCart }: NavbarProps) {
                     label={profileLabel}
                     initials={initials}
                     photoUrl={photoUrl}
-                    pixel={27}
+                    pixel={30}
                     className={styles.profileLogo}
                   />
                   {isAdmin && (
                     <Link
                       href="/admin"
+                      prefetch={false}
                       className={styles.topLink}
                       onClick={() => setMenuOpen(false)}
                     >
@@ -186,6 +202,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
                 <>
                   <Link
                     href="/login"
+                    prefetch={false}
                     className={styles.topLink}
                     onClick={() => setMenuOpen(false)}
                   >
@@ -193,6 +210,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
                   </Link>
                   <Link
                     href="/signup"
+                    prefetch={false}
                     className={styles.topSignUp}
                     onClick={() => setMenuOpen(false)}
                   >
@@ -207,7 +225,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
                 label={profileLabel}
                 initials={initials}
                 photoUrl={photoUrl}
-                pixel={27}
+                pixel={30}
                 className={styles.profileLogoMobile}
               />
             )}
@@ -274,7 +292,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
                 label={profileLabel}
                 initials={initials}
                 photoUrl={photoUrl}
-                pixel={36}
+                pixel={40}
                 className={styles.subProfileLogo}
               />
               <div className={styles.subProfileMeta}>
@@ -285,11 +303,12 @@ export function Navbar({ onOpenCart }: NavbarProps) {
               </div>
             </div>
           )}
-          <Link href="/" className={styles.subLink} onClick={() => setMenuOpen(false)}>
+          <Link href="/" prefetch={false} className={styles.subLink} onClick={() => setMenuOpen(false)}>
             Shop all
           </Link>
           <Link
             href="/about"
+            prefetch={false}
             className={styles.subLink}
             onClick={() => setMenuOpen(false)}
           >
@@ -297,6 +316,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
           </Link>
           <Link
             href="/contact"
+            prefetch={false}
             className={styles.subLink}
             onClick={() => setMenuOpen(false)}
           >
@@ -304,6 +324,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
           </Link>
           <Link
             href="/faq"
+            prefetch={false}
             className={styles.subLink}
             onClick={() => setMenuOpen(false)}
           >
@@ -311,6 +332,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
           </Link>
           <Link
             href="/shipping"
+            prefetch={false}
             className={styles.subLink}
             onClick={() => setMenuOpen(false)}
           >
@@ -318,6 +340,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
           </Link>
           <Link
             href="/terms"
+            prefetch={false}
             className={styles.subLink}
             onClick={() => setMenuOpen(false)}
           >
@@ -325,6 +348,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
           </Link>
           <Link
             href="/track"
+            prefetch={false}
             className={styles.subLink}
             onClick={() => setMenuOpen(false)}
           >
@@ -332,6 +356,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
           </Link>
           <Link
             href="/checkout"
+            prefetch={false}
             className={styles.subLink}
             onClick={() => setMenuOpen(false)}
           >
@@ -342,6 +367,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
               {isAdmin && (
                 <Link
                   href="/admin"
+                  prefetch={false}
                   className={styles.subLink}
                   onClick={() => setMenuOpen(false)}
                 >
@@ -371,6 +397,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
             <>
               <Link
                 href="/login"
+                prefetch={false}
                 className={styles.subLink}
                 onClick={() => setMenuOpen(false)}
               >
@@ -378,6 +405,7 @@ export function Navbar({ onOpenCart }: NavbarProps) {
               </Link>
               <Link
                 href="/signup"
+                prefetch={false}
                 className={styles.subLink}
                 onClick={() => setMenuOpen(false)}
               >

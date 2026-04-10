@@ -17,21 +17,27 @@
 }
 
 .header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2.25rem;
+  padding: 1.2rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(109, 40, 217, 0.1), transparent 55%),
+    #fff;
 }
 
 .title {
   font-family: var(--font-body);
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.65rem, 4vw, 2.2rem);
   font-weight: 700;
   color: var(--foreground);
   letter-spacing: 0.01em;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.55rem;
 }
 
 .lead {
   max-width: 520px;
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: 0.98rem;
+  line-height: 1.6;
   color: var(--muted);
 }

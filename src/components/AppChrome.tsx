@@ -1,12 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import { CartDrawer } from "./CartDrawer";
-import { FloatingActions } from "./FloatingActions";
 import { Navbar } from "./Navbar";
 import { SiteFooter } from "./SiteFooter";
 import styles from "./AppChrome.module.css";
+
+const CartDrawer = dynamic(
+  () => import("./CartDrawer").then((m) => m.CartDrawer),
+  { ssr: false },
+);
+const FloatingActions = dynamic(
+  () => import("./FloatingActions").then((m) => m.FloatingActions),
+  { ssr: false },
+);
 
 function isAdminPath(pathname: string | null): boolean {
   return Boolean(pathname?.startsWith("/admin"));
@@ -35,7 +43,9 @@ export function AppChrome({ children }: { children: ReactNode }) {
         Skip to main content
       </a>
       <Navbar onOpenCart={() => setCartOpen(true)} />
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      {cartOpen ? (
+        <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      ) : null}
       <FloatingActions />
       <main id="main-content" className={styles.main} tabIndex={-1}>
         {children}

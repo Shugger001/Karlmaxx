@@ -9,11 +9,18 @@ import "./globals.css";
 const retail = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+  fallback: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
   variable: "--font-retail",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   title: {
     default: "Karlmaxx | Menswear & accessories",
     template: "%s | Karlmaxx",
@@ -42,8 +49,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={retail.variable} suppressHydrationWarning>
-      <body className={retail.className} suppressHydrationWarning>
+    <html lang="en" className={retail.variable}>
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
+      <body className={retail.className}>
         <SupabaseConfigBanner />
         <Providers>
           <AppChrome>{children}</AppChrome>

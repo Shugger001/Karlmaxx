@@ -116,6 +116,20 @@
   overflow: hidden;
 }
 
+.thumb :global(img.photo-surface-motion-subtle) {
+  animation-duration: 22s;
+}
+
+.row:nth-child(odd) .thumb :global(img.photo-surface-motion-subtle) {
+  animation-delay: -5s;
+}
+
+.row:hover .thumb :global(img.photo-surface-motion-subtle) {
+  animation: none;
+  transform: scale(1.06);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .meta {
   min-width: 0;
 }
@@ -235,4 +249,11 @@
   opacity: 0.4;
   cursor: not-allowed;
   transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row:hover .thumb :global(img.photo-surface-motion-subtle) {
+    transform: none;
+    transition: none;
+  }
 }

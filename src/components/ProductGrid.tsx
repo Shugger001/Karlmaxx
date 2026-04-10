@@ -6,9 +6,11 @@ import {
   SUPABASE_CLIENT_SETUP_MESSAGE,
 } from "@/lib/supabase/client";
 import { displayBrandLabel, groupProductsByBrand } from "@/lib/productGroups";
+import { isStorefrontExcludedCategory } from "@/lib/storefrontFilters";
 import { mapProductRow } from "@/lib/supabase/maps";
 import { useShopSearch } from "@/context/ShopSearchContext";
 import type { Product } from "@/types";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ProductCard } from "./ProductCard";
@@ -17,11 +19,6 @@ import { RevealOnScroll } from "./RevealOnScroll";
 import styles from "./ProductGrid.module.css";
 
 const SKELETON_COUNT = 6;
-
-/** Categories hidden from the storefront grid and category chips (inventory may remain in Admin). */
-function isStorefrontExcludedCategory(category: string): boolean {
-  return category.trim().toLowerCase() === "trousers";
-}
 
 export function ProductGrid() {
   const searchParams = useSearchParams();
@@ -180,7 +177,7 @@ export function ProductGrid() {
       <RevealOnScroll className={styles.headReveal}>
         <div className={styles.head}>
           <div>
-            <h2>Results</h2>
+            <h2>Featured Products</h2>
             {!loading && !error && (
               <p className={styles.resultMeta}>
                 {categoryChipActive
@@ -198,7 +195,7 @@ export function ProductGrid() {
             )}
           </div>
           <p className={styles.tagline}>
-            Today&apos;s deals on menswear, bags, fragrance, watches, and tech.
+            Handpicked for you.
           </p>
         </div>
       </RevealOnScroll>
@@ -279,17 +276,50 @@ export function ProductGrid() {
           </div>
         )}
         {!loading && error && (
-          <p className={`${styles.state} ${styles.error}`}>{error}</p>
+          <div className={`${styles.stateCard} ${styles.errorState}`}>
+            <p className={styles.stateIcon} aria-hidden>
+              !
+            </p>
+            <p className={`${styles.state} ${styles.error}`}>{error}</p>
+            <button
+              type="button"
+              className={styles.stateAction}
+              onClick={() => window.location.reload()}
+            >
+              Try again
+            </button>
+          </div>
         )}
         {!loading && !error && ordered.length === 0 && (
-          <p className={styles.state}>
-            No products yet. Add inventory from the admin console.
-          </p>
+          <div className={styles.stateCard}>
+            <p className={styles.stateIcon} aria-hidden>
+              *
+            </p>
+            <p className={styles.state}>No products yet. Add inventory from the admin console.</p>
+            <Link href="/admin/products" className={styles.stateActionLink}>
+              Open admin products
+            </Link>
+          </div>
         )}
         {!loading && !error && ordered.length > 0 && filtered.length === 0 && (
-          <p className={styles.state}>
-            No results for &quot;{query.trim()}&quot;. Try another search.
-          </p>
+          <div className={styles.stateCard}>
+            <p className={styles.stateIcon} aria-hidden>
+              *
+            </p>
+            <p className={styles.state}>
+              No results for &quot;{query.trim()}&quot;. Try another search.
+            </p>
+            <button
+              type="button"
+              className={styles.stateAction}
+              onClick={() => {
+                setQuery("");
+                syncCatalogUrl("");
+              }}
+            >
+              Clear search
+            </button>
+          </div>
         )}
         {!loading && !error && filtered.length > 0 && gridLayout.kind === "flat" && (
           <div className={styles.grid}>
@@ -321,14 +351,31 @@ export function ProductGrid() {
           gridLayout.kind === "category-chip" &&
           strictCategoryProducts.length === 0 &&
           ordered.length > 0 && (
-            <p className={styles.state}>No products in this category yet.</p>
+            <div className={styles.stateCard}>
+              <p className={styles.stateIcon} aria-hidden>
+                *
+              </p>
+              <p className={styles.state}>No products in this category yet.</p>
+            </div>
           )}
         {!loading &&
           !error &&
           gridLayout.kind === "category-chip" &&
           strictCategoryProducts.length > 0 &&
           categoryProductsToShow.length === 0 && (
-            <p className={styles.state}>No products for this brand.</p>
+            <div className={styles.stateCard}>
+              <p className={styles.stateIcon} aria-hidden>
+                *
+              </p>
+              <p className={styles.state}>No products for this brand.</p>
+              <button
+                type="button"
+                className={styles.stateAction}
+                onClick={() => setCategoryBrandFilter("all")}
+              >
+                Show all brands
+              </button>
+            </div>
           )}
         </div>
       </RevealOnScroll>

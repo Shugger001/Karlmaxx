@@ -211,6 +211,16 @@
   color: #1565c0;
 }
 
+.thumbClip {
+  display: inline-block;
+  width: 40px;
+  height: 52px;
+  overflow: hidden;
+  border-radius: 2px;
+  vertical-align: middle;
+  background: var(--admin-thumb-bg, #e8f0fa);
+}
+
 .thumb {
   width: 40px;
   height: 52px;

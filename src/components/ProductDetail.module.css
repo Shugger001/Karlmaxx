@@ -1,6 +1,9 @@
+.detailHoverZone {
+}
+
 .wrap {
   display: grid;
-  gap: 2rem;
+  gap: 1.75rem;
   animation: in 0.55s ease both;
 }
 
@@ -28,7 +31,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--muted);
   margin-bottom: 0.75rem;
 }
@@ -62,34 +65,36 @@
   aspect-ratio: 3 / 4;
   background: var(--image-bg);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 18px;
   overflow: hidden;
 }
 
-.gallery :global(img) {
+.gallery :global(img.photo-surface-motion) {
   transition: transform 0.55s cubic-bezier(0.33, 1, 0.68, 1);
+  animation-duration: 18s;
 }
 
-.gallery:hover :global(img) {
-  transform: scale(1.05);
+.detailHoverZone:hover .gallery :global(img.photo-surface-motion) {
+  animation: none;
+  transform: scale(1.1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gallery :global(img) {
+  .gallery :global(img.photo-surface-motion) {
     transition: none;
   }
 
-  .gallery:hover :global(img) {
+  .detailHoverZone:hover .gallery :global(img.photo-surface-motion) {
     transform: none;
   }
 }
 
 .buyBox {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.15rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--border) 75%, var(--accent) 25%);
+  border-radius: 18px;
+  padding: 1.25rem 1.35rem;
   background: var(--surface);
-  box-shadow: 0 2px 8px rgba(15, 17, 17, 0.08);
+  box-shadow: 0 14px 28px rgba(16, 24, 40, 0.08);
 }
 
 .colorSection {
@@ -120,19 +125,19 @@
   background: #f7f8f8;
   color: var(--foreground);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 10px;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
 }
 
 .colorBtn:hover {
-  border-color: #888c8c;
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
 }
 
 .colorBtnActive {
-  border-color: var(--link);
-  box-shadow: 0 0 0 1px var(--link);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
   background: #fff;
 }
 
@@ -170,7 +175,7 @@
 
 .title {
   font-family: var(--font-body);
-  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-size: clamp(1.55rem, 2.8vw, 2rem);
   font-weight: 700;
   color: var(--foreground);
   line-height: 1.25;
@@ -182,8 +187,8 @@
 }
 
 .price {
-  font-size: 1.15rem;
-  font-weight: 400;
+  font-size: 1.3rem;
+  font-weight: 600;
   color: var(--foreground);
 }
 
@@ -235,12 +240,14 @@
   padding: 0.55rem 1rem;
   font-size: 0.88rem;
   font-weight: 500;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
   border: none;
   background: var(--cta-yellow);
-  color: var(--foreground);
-  box-shadow: inset 0 0 0 1px #fcd200;
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 10px 20px rgba(17, 24, 39, 0.2);
   transition: background 0.15s ease;
 }
 
@@ -257,16 +264,17 @@
   padding: 0.55rem 1rem;
   font-size: 0.88rem;
   font-weight: 500;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
   border: none;
-  background: var(--cta-orange);
-  color: #111;
+  background: #f8f9ff;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--border) 75%, var(--accent) 25%);
   transition: background 0.15s ease;
 }
 
 .btnSecondary:hover:not(:disabled) {
-  background: var(--cta-orange-hover);
+  background: #efedff;
 }
 
 .btnSecondary:disabled {
@@ -288,10 +296,149 @@
 
 .state {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 0;
   color: var(--muted);
 }
 
 .error {
   color: #b71c1c;
+}
+
+.stateCard {
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 1.4rem 1rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(16, 24, 40, 0.07);
+}
+
+.stateIcon {
+  width: 2rem;
+  height: 2rem;
+  margin: 0 auto 0.6rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 75%, #fff 25%);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.stateAction,
+.stateActionLink {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.52rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 75%, var(--accent) 25%);
+  color: var(--accent);
+  background: #f8f9ff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.stateAction:hover,
+.stateActionLink:hover {
+  background: #efedff;
+}
+
+.errorState .stateIcon {
+  color: #b71c1c;
+  border-color: rgba(183, 28, 28, 0.28);
+  background: rgba(183, 28, 28, 0.08);
+}
+
+.related {
+  margin-top: clamp(2rem, 5vw, 3.25rem);
+  padding: clamp(2rem, 5vw, 3rem) clamp(1.25rem, 4vw, 2rem) clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid color-mix(in srgb, var(--border) 80%, var(--accent) 20%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface) 92%, var(--accent-soft) 8%) 0%,
+    var(--surface) 48%
+  );
+}
+
+.relatedInner {
+  max-width: 1260px;
+  margin: 0 auto;
+}
+
+.relatedTitle {
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2.2vw, 1.45rem);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.relatedSub {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0 0 1.35rem;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: clamp(1.25rem, 2.8vw, 2.1rem);
+}
+
+@media (max-width: 700px) {
+  .relatedGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .related {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .breadcrumbs {
+    font-size: 0.72rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .back {
+    font-size: 0.74rem;
+  }
+
+  .wrap {
+    gap: 1rem;
+  }
+
+  .buyBox {
+    padding: 1rem 0.95rem;
+    border-radius: 14px;
+    box-shadow: 0 10px 18px rgba(16, 24, 40, 0.07);
+  }
+
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .price {
+    font-size: 1.16rem;
+  }
+
+  .desc {
+    font-size: 0.84rem;
+    line-height: 1.55;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    min-height: 42px;
+  }
 }

@@ -16,28 +16,28 @@ export function HomeHero() {
     <section className={styles.hero} aria-labelledby="hero-heading">
       <div className={styles.inner}>
         <div className={styles.copy}>
-          <p className={styles.kicker}>Free delivery on qualifying orders</p>
+          <p className={styles.kicker}>Curated essentials for modern lifestyles</p>
           <h1 id="hero-heading" className={styles.title}>
-            Shop menswear, bags, fragrance &amp; more
+            Premium menswear, bags, fragrance and lifestyle picks
           </h1>
           <p className={styles.lead}>
-            Low prices on quality pieces. Browse the catalog, read reviews, and
-            check out securely with Paystack.
+            Discover refined pieces that feel timeless. Shop a carefully selected
+            catalog built for quality, confidence, and everyday luxury.
           </p>
           <div className={styles.cta}>
             <Link href="#collection" className={styles.btnPrimary}>
               Shop now
             </Link>
-            <Link href="/checkout" className={styles.btnGhost}>
+            <Link href="/checkout" prefetch={false} className={styles.btnGhost}>
               Go to cart
             </Link>
           </div>
           <p className={styles.accountStrip}>
-            <Link href="/login">Sign in</Link>
+            <Link href="/login" prefetch={false}>Sign in</Link>
             <span className={styles.accountSep} aria-hidden>
               ·
             </span>
-            <Link href="/signup">Create an account</Link>
+            <Link href="/signup" prefetch={false}>Create an account</Link>
           </p>
           <dl className={styles.stats}>
             <div className={styles.stat}>
@@ -67,7 +67,9 @@ export function HomeHero() {
                 alt=""
                 fill
                 sizes="(max-width: 900px) 45vw, 200px"
-                className={styles.framePhoto}
+                fetchPriority="high"
+                quality={78}
+                className={`${styles.framePhoto} photo-surface-motion`}
                 priority
               />
               <span className={styles.frameLabel}>New in</span>
@@ -82,7 +84,7 @@ export function HomeHero() {
                 alt=""
                 fill
                 sizes="(max-width: 900px) 50vw, 220px"
-                className={styles.framePhoto}
+                className={`${styles.framePhoto} photo-surface-motion-rev`}
               />
               <span className={styles.frameLabel}>Bags</span>
             </Link>
@@ -96,7 +98,7 @@ export function HomeHero() {
                 alt=""
                 fill
                 sizes="(max-width: 900px) 40vw, 180px"
-                className={styles.framePhoto}
+                className={`${styles.framePhoto} photo-surface-motion`}
               />
               <span className={styles.frameLabel}>Fragrance</span>
             </Link>

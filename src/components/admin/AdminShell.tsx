@@ -15,8 +15,8 @@ const NAV: {
   hint: string;
 }[] = [
   { id: "overview", label: "Overview", hint: "KPIs & snapshot" },
-  { id: "products", label: "Products", hint: "Catalog & stock" },
-  { id: "orders", label: "Orders", hint: "Sales & CSV" },
+  { id: "products", label: "Products", hint: "Bulk, duplicate & CSV" },
+   { id: "orders", label: "Orders", hint: "Fulfillment, notes & CSV" },
   { id: "customers", label: "Customers", hint: "Roles & accounts" },
   { id: "system", label: "System", hint: "Integrations" },
 ];

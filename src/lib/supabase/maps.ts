@@ -161,6 +161,7 @@ export function mapOrderRow(row: Record<string, unknown>): Order | null {
   const carrier = row.carrier;
   const trackingNumber = row.tracking_number;
   const trackingToken = row.tracking_token;
+  const adminNotesRaw = row.admin_notes;
   const fulfillmentStage: FulfillmentStage =
     typeof fulfillmentStageRaw === "string" && isFulfillmentStage(fulfillmentStageRaw)
       ? fulfillmentStageRaw
@@ -191,5 +192,7 @@ export function mapOrderRow(row: Record<string, unknown>): Order | null {
       typeof trackingNumber === "string" ? trackingNumber : null,
     trackingToken:
       typeof trackingToken === "string" ? trackingToken : null,
+    adminNotes:
+      typeof adminNotesRaw === "string" ? adminNotesRaw : null,
   };
 }
