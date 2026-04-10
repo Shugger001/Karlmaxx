@@ -19,7 +19,7 @@ type OrderPreset =
   | "delivered_only";
 
 export function OrdersView() {
-  const { orders, loading, refresh, supabaseReady } = useAdminData();
+  const { orders, loading, refresh, supabaseReady, error: loadError } = useAdminData();
   const [preset, setPreset] = useState<OrderPreset>("all");
   const [q, setQ] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -31,6 +31,13 @@ export function OrdersView() {
     trackingNumber: string;
   } | null>(null);
   const [notesDraft, setNotesDraft] = useState("");
+  const [selectedIds, setSelectedIds] = useState(() => new Set<string>());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkStage, setBulkStage] = useState<FulfillmentStage>("shipped");
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [preset, q]);
 
   useEffect(() => {
     if (!expanded) {
@@ -87,11 +94,100 @@ export function OrdersView() {
           (o.paystackReference?.toLowerCase().includes(needle) ?? false) ||
           (o.userId?.toLowerCase().includes(needle) ?? false) ||
           (o.customerEmail?.toLowerCase().includes(needle) ?? false) ||
-          (o.trackingNumber?.toLowerCase().includes(needle) ?? false),
+          (o.trackingNumber?.toLowerCase().includes(needle) ?? false) ||
+          (o.adminNotes?.toLowerCase().includes(needle) ?? false),
       );
     }
     return list;
   }, [orders, preset, q]);
+
+  const selectedInView = useMemo(
+    () => filtered.filter((o) => selectedIds.has(o.id)),
+    [filtered, selectedIds],
+  );
+  const selectedPending = useMemo(
+    () => selectedInView.filter((o) => o.status === "pending"),
+    [selectedInView],
+  );
+  const selectedPaid = useMemo(
+    () => selectedInView.filter((o) => o.status === "paid"),
+    [selectedInView],
+  );
+  const allFilteredSelected =
+    filtered.length > 0 && filtered.every((o) => selectedIds.has(o.id));
+
+  const toggleRowSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAllFiltered = () => {
+    setSelectedIds(() =>
+      allFilteredSelected ? new Set() : new Set(filtered.map((o) => o.id)),
+    );
+  };
+
+  const bulkMarkPaid = async () => {
+    if (!supabaseReady || selectedPending.length === 0) return;
+    setBulkBusy(true);
+    setMsg(null);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      for (const o of selectedPending) {
+        const { error } = await supabase
+          .from("orders")
+          .update({ status: "paid" })
+          .eq("id", o.id);
+        if (error) throw error;
+      }
+      setMsg({
+        ok: true,
+        text: `Marked ${selectedPending.length} order(s) as paid.`,
+      });
+      setSelectedIds(new Set());
+      await refresh();
+    } catch {
+      setMsg({
+        ok: false,
+        text: "Bulk payment update failed. Refresh and check RLS.",
+      });
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const bulkApplyFulfillmentStage = async () => {
+    if (!supabaseReady || selectedPaid.length === 0) return;
+    setBulkBusy(true);
+    setMsg(null);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      for (const o of selectedPaid) {
+        const { error } = await supabase
+          .from("orders")
+          .update({ fulfillment_stage: bulkStage })
+          .eq("id", o.id);
+        if (error) throw error;
+      }
+      setMsg({
+        ok: true,
+        text: `Updated fulfillment to “${FULFILLMENT_LABELS[bulkStage]}” for ${selectedPaid.length} paid order(s). Carrier / tracking unchanged.`,
+      });
+      setSelectedIds(new Set());
+      await refresh();
+    } catch {
+      setMsg({
+        ok: false,
+        text: "Bulk fulfillment update failed. Refresh and check RLS.",
+      });
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   const exportCsv = () => {
     downloadTextFile(
@@ -125,13 +221,14 @@ export function OrdersView() {
 
   const saveAdminNotes = async (order: Order) => {
     if (!supabaseReady) return;
+    const nextVal = notesDraft.trim() || null;
     setBusyId(order.id);
     setMsg(null);
     try {
       const supabase = createSupabaseBrowserClient();
       const { error } = await supabase
         .from("orders")
-        .update({ admin_notes: notesDraft.trim() || null })
+        .update({ admin_notes: nextVal })
         .eq("id", order.id);
       if (error) throw error;
       setMsg({ ok: true, text: "Notes saved." });
@@ -177,14 +274,24 @@ export function OrdersView() {
     return <p className={s.msg}>Loading orders…</p>;
   }
 
+  const expandedOrder = expanded ? orders.find((x) => x.id === expanded) : null;
+  const notesDirty =
+    Boolean(expandedOrder) &&
+    notesDraft.trim() !== (expandedOrder?.adminNotes?.trim() ?? "");
+
   return (
     <div className={s.panel}>
       <h2 className={s.panelTitle}>Orders &amp; fulfillment</h2>
+      {loadError && (
+        <p className={s.msgError} role="alert">
+          {loadError}
+        </p>
+      )}
       <div className={s.toolbar}>
         <input
           className={`${s.input} ${s.searchInput}`}
           type="search"
-          placeholder="Search ID, Paystack ref, user…"
+          placeholder="Search ID, Paystack ref, email, tracking, notes…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -211,6 +318,70 @@ export function OrdersView() {
           Export CSV ({filtered.length})
         </button>
       </div>
+      {filtered.length > 0 && (
+        <div
+          className={s.toolbar}
+          style={{
+            marginTop: "-0.35rem",
+            paddingTop: "0.65rem",
+            borderTop: "1px solid var(--border)",
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: "0.72rem", color: "var(--muted)", marginRight: "0.25rem" }}>
+            Bulk ({selectedIds.size} selected):
+          </span>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <input
+              type="checkbox"
+              checked={allFilteredSelected}
+              disabled={bulkBusy || !supabaseReady}
+              onChange={toggleSelectAllFiltered}
+              aria-label="Select all orders in this list"
+            />
+            <span style={{ fontSize: "0.75rem" }}>All in view</span>
+          </label>
+          <button
+            type="button"
+            className={s.btnGhost}
+            disabled={
+              bulkBusy ||
+              !supabaseReady ||
+              selectedPending.length === 0
+            }
+            onClick={() => void bulkMarkPaid()}
+            title="Only applies to selected rows that are still pending payment"
+          >
+            Mark paid ({selectedPending.length})
+          </button>
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <select
+              className={s.select}
+              style={{ padding: "0.35rem 0.5rem", fontSize: "0.75rem" }}
+              value={bulkStage}
+              disabled={bulkBusy || !supabaseReady || selectedPaid.length === 0}
+              onChange={(e) => setBulkStage(e.target.value as FulfillmentStage)}
+              aria-label="Fulfillment stage for bulk update"
+            >
+              {FULFILLMENT_STAGES.map((st) => (
+                <option key={st} value={st}>
+                  {FULFILLMENT_LABELS[st]}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className={s.btnGhost}
+              disabled={bulkBusy || !supabaseReady || selectedPaid.length === 0}
+              onClick={() => void bulkApplyFulfillmentStage()}
+              title="Only applies to selected rows that are already paid"
+            >
+              Set stage ({selectedPaid.length})
+            </button>
+          </label>
+        </div>
+      )}
       {msg && (
         <p className={msg.ok ? s.msgOk : s.msgError}>{msg.text}</p>
       )}
@@ -223,9 +394,11 @@ export function OrdersView() {
           <table className={s.table}>
             <thead>
               <tr>
+                <th style={{ width: 36 }} aria-label="Select" />
                 <th>Order</th>
                 <th>Pay</th>
                 <th>Ship</th>
+                <th>Notes</th>
                 <th>Total</th>
                 <th>Customer</th>
                 <th>Items</th>
@@ -236,6 +409,15 @@ export function OrdersView() {
               {filtered.map((o) => (
                 <Fragment key={o.id}>
                   <tr>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(o.id)}
+                        disabled={bulkBusy || !supabaseReady}
+                        onChange={() => toggleRowSelected(o.id)}
+                        aria-label={`Select order ${o.id.slice(0, 8)}…`}
+                      />
+                    </td>
                     <td className={s.mono} style={{ maxWidth: 120 }}>
                       {o.id.slice(0, 18)}
                       {o.id.length > 18 ? "…" : ""}
@@ -254,6 +436,20 @@ export function OrdersView() {
                       >
                         {o.fulfillmentStage.replace(/_/g, " ")}
                       </span>
+                    </td>
+                    <td>
+                      {o.adminNotes?.trim() ? (
+                        <span
+                          className={s.badgeInternalNote}
+                          title={o.adminNotes.trim().slice(0, 500)}
+                        >
+                          note
+                        </span>
+                      ) : (
+                        <span style={{ color: "var(--muted-faint)", fontSize: "0.72rem" }}>
+                          —
+                        </span>
+                      )}
                     </td>
                     <td>{formatCedis(o.total)}</td>
                     <td className={s.mono}>{o.userId ?? "guest"}</td>
@@ -274,6 +470,7 @@ export function OrdersView() {
                           type="button"
                           className={s.btnGhost}
                           style={{ padding: "0.35rem 0.5rem", fontSize: "0.62rem" }}
+                          disabled={bulkBusy}
                           onClick={() =>
                             setExpanded((x) => (x === o.id ? null : o.id))
                           }
@@ -284,7 +481,7 @@ export function OrdersView() {
                           className={s.select}
                           style={{ padding: "0.35rem", fontSize: "0.72rem", maxWidth: 110 }}
                           value={o.status}
-                          disabled={!supabaseReady || busyId === o.id}
+                          disabled={!supabaseReady || busyId === o.id || bulkBusy}
                           onChange={(e) =>
                             void setStatus(o, e.target.value as OrderStatus)
                           }
@@ -297,7 +494,7 @@ export function OrdersView() {
                   </tr>
                   {expanded === o.id && fulfillmentDraft && (
                     <tr>
-                      <td colSpan={7}>
+                      <td colSpan={9}>
                         <div className={s.orderDetail}>
                           <div>
                             <strong>Full ID:</strong>{" "}
@@ -349,7 +546,7 @@ export function OrdersView() {
                               <select
                                 className={s.select}
                                 value={fulfillmentDraft.stage}
-                                disabled={busyId === o.id}
+                                disabled={busyId === o.id || bulkBusy}
                                 onChange={(e) =>
                                   setFulfillmentDraft((d) =>
                                     d
@@ -375,7 +572,7 @@ export function OrdersView() {
                               <input
                                 className={s.input}
                                 value={fulfillmentDraft.carrier}
-                                disabled={busyId === o.id}
+                                disabled={busyId === o.id || bulkBusy}
                                 placeholder="e.g. FedEx, GIG"
                                 onChange={(e) =>
                                   setFulfillmentDraft((d) =>
@@ -391,7 +588,7 @@ export function OrdersView() {
                               <input
                                 className={s.input}
                                 value={fulfillmentDraft.trackingNumber}
-                                disabled={busyId === o.id}
+                                disabled={busyId === o.id || bulkBusy}
                                 onChange={(e) =>
                                   setFulfillmentDraft((d) =>
                                     d ? { ...d, trackingNumber: e.target.value } : d,
@@ -403,7 +600,7 @@ export function OrdersView() {
                               type="button"
                               className={s.btnGhost}
                               style={{ justifySelf: "start" }}
-                              disabled={busyId === o.id || !supabaseReady}
+                              disabled={busyId === o.id || !supabaseReady || bulkBusy}
                               onClick={() => void saveFulfillment(o)}
                             >
                               Save fulfillment
@@ -428,11 +625,23 @@ export function OrdersView() {
                             >
                               Staff only — not shown to customers or on tracking.
                             </p>
+                            {notesDirty && (
+                              <p
+                                style={{
+                                  margin: "0 0 0.45rem",
+                                  fontSize: "0.72rem",
+                                  color: "var(--gold-dim)",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Unsaved changes
+                              </p>
+                            )}
                             <textarea
                               className={s.input}
                               rows={4}
                               value={notesDraft}
-                              disabled={busyId === o.id || !supabaseReady}
+                              disabled={busyId === o.id || !supabaseReady || bulkBusy}
                               placeholder="e.g. called customer, reship Tuesday…"
                               onChange={(e) => setNotesDraft(e.target.value)}
                               style={{
@@ -443,15 +652,37 @@ export function OrdersView() {
                                 lineHeight: 1.45,
                               }}
                             />
-                            <button
-                              type="button"
-                              className={s.btnGhost}
-                              style={{ marginTop: "0.5rem" }}
-                              disabled={busyId === o.id || !supabaseReady}
-                              onClick={() => void saveAdminNotes(o)}
+                            <div
+                              style={{
+                                marginTop: "0.5rem",
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: "0.5rem",
+                                alignItems: "center",
+                              }}
                             >
-                              Save notes
-                            </button>
+                              <button
+                                type="button"
+                                className={s.btnGhost}
+                                disabled={
+                                  busyId === o.id ||
+                                  !supabaseReady ||
+                                  !notesDirty ||
+                                  bulkBusy
+                                }
+                                onClick={() => void saveAdminNotes(o)}
+                              >
+                                Save notes
+                              </button>
+                              <button
+                                type="button"
+                                className={s.btnGhost}
+                                disabled={busyId === o.id || !notesDirty || bulkBusy}
+                                onClick={() => setNotesDraft(o.adminNotes ?? "")}
+                              >
+                                Discard
+                              </button>
+                            </div>
                           </div>
                           <div style={{ marginTop: "0.5rem" }}>
                             <strong>Line items</strong>

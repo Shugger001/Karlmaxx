@@ -18,12 +18,10 @@
   align-self: start;
   min-height: 100vh;
   padding: 1.35rem 0 1.1rem;
-  background:
-    linear-gradient(180deg, rgba(201, 169, 98, 0.07) 0%, transparent 28%),
-    linear-gradient(165deg, #0a0b0e 0%, #12141c 48%, #0d0e12 100%);
-  color: #e4e6eb;
-  border-right: 1px solid rgba(201, 169, 98, 0.14);
-  box-shadow: 4px 0 48px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(120deg, #111827 0%, #1f2937 45%, #0f172a 100%);
+  color: #f8fafc;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 4px 0 32px rgba(16, 24, 40, 0.12);
   z-index: 40;
   display: flex;
   flex-direction: column;
@@ -37,7 +35,7 @@
     width: min(288px, 88vw);
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    box-shadow: 12px 0 48px rgba(0, 0, 0, 0.5);
+    box-shadow: 12px 0 48px rgba(0, 0, 0, 0.35);
   }
 
   .sidebarOpen {
@@ -51,7 +49,7 @@
   justify-content: space-between;
   gap: 0.65rem;
   padding: 0 1.1rem 0.85rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .brandStack {
@@ -62,17 +60,17 @@
 }
 
 .brandLink {
-  font-family: var(--font-admin-display), "Times New Roman", Georgia, serif;
-  font-weight: 600;
+  font-family: var(--font-body), var(--font-retail), system-ui, sans-serif;
+  font-weight: 700;
   font-size: 1.2rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #faf7f0;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: #f8fafc;
   line-height: 1.15;
 }
 
 .brandLink:hover {
-  color: #e8cf8c;
+  color: #e9d5ff;
 }
 
 .privateMark {
@@ -80,7 +78,7 @@
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(201, 169, 98, 0.85);
+  color: #cbd5e1;
 }
 
 .brandBadge {
@@ -91,15 +89,15 @@
   text-transform: uppercase;
   padding: 0.28rem 0.45rem;
   border-radius: 3px;
-  background: rgba(201, 169, 98, 0.18);
-  color: #e8cf8c;
-  border: 1px solid rgba(201, 169, 98, 0.35);
+  background: rgba(139, 92, 246, 0.22);
+  color: #e9d5ff;
+  border: 1px solid rgba(167, 139, 250, 0.45);
 }
 
 .sidebarSub {
   font-size: 0.68rem;
   line-height: 1.45;
-  color: #7d8494;
+  color: #94a3b8;
   padding: 0.75rem 1.1rem 0.55rem;
   margin: 0;
   letter-spacing: 0.04em;
@@ -123,7 +121,7 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #aeb6c4;
+  color: #cbd5e1;
   cursor: pointer;
   text-align: left;
   text-decoration: none;
@@ -135,16 +133,16 @@
 }
 
 .navBtn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #f0f2f5;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
 }
 
 .navBtnActive {
-  background: rgba(201, 169, 98, 0.12);
-  color: #faf7f0;
+  background: rgba(109, 40, 217, 0.22);
+  color: #faf5ff;
   box-shadow:
-    inset 0 0 0 1px rgba(201, 169, 98, 0.35),
-    0 4px 20px rgba(0, 0, 0, 0.2);
+    inset 0 0 0 1px rgba(167, 139, 250, 0.45),
+    0 4px 20px rgba(0, 0, 0, 0.18);
 }
 
 .navLabel {
@@ -155,36 +153,36 @@
 
 .navHint {
   font-size: 0.62rem;
-  color: #6f7785;
+  color: #94a3b8;
   letter-spacing: 0.03em;
 }
 
 .navBtnActive .navHint {
-  color: #a89b7a;
+  color: #c4b5fd;
 }
 
 .sidebarFoot {
   margin-top: auto;
   padding: 1rem 1.1rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footLink {
   font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #8b93a3;
+  color: #94a3b8;
 }
 
 .footLink:hover {
-  color: #e8cf8c;
+  color: #e9d5ff;
 }
 
 .main {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(8, 9, 11, 0.35);
+  background: transparent;
 }
 
 .topbar {
@@ -196,9 +194,10 @@
   gap: 1rem;
   flex-wrap: wrap;
   padding: 1rem clamp(1rem, 3vw, 1.65rem);
-  background: rgba(14, 16, 20, 0.78);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(16, 24, 40, 0.04);
 }
 
 .menuBtn {
@@ -208,9 +207,9 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   cursor: pointer;
   color: var(--foreground);
 }
@@ -232,16 +231,16 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(201, 169, 98, 0.75);
+  color: var(--accent);
 }
 
 .pageTitle {
   margin: 0;
-  font-family: var(--font-admin-display), "Times New Roman", Georgia, serif;
+  font-family: var(--font-body), var(--font-retail), system-ui, sans-serif;
   font-size: clamp(1.35rem, 3vw, 1.85rem);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--foreground);
-  letter-spacing: 0.03em;
+  letter-spacing: -0.02em;
 }
 
 .pageHint {
@@ -266,9 +265,9 @@
   text-transform: uppercase;
   padding: 0.28rem 0.45rem;
   border-radius: 3px;
-  background: rgba(201, 169, 98, 0.15);
-  color: #e8cf8c;
-  border: 1px solid rgba(201, 169, 98, 0.28);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
 }
 
 .userEmail {
@@ -287,8 +286,8 @@
   text-transform: uppercase;
   padding: 0.45rem 0.75rem;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  background: var(--surface);
   color: var(--foreground);
   cursor: pointer;
   transition:
@@ -297,8 +296,9 @@
 }
 
 .signOut:hover:not(:disabled) {
-  background: rgba(201, 169, 98, 0.12);
-  border-color: rgba(201, 169, 98, 0.35);
+  background: var(--accent-soft);
+  border-color: var(--accent-dim);
+  color: var(--accent);
 }
 
 .signOut:disabled {
@@ -310,9 +310,9 @@
   margin: 0 clamp(1rem, 3vw, 1.65rem);
   padding: 0.85rem 1rem;
   font-size: 0.82rem;
-  color: #fecaca;
-  background: rgba(127, 29, 29, 0.35);
-  border: 1px solid rgba(248, 113, 113, 0.25);
+  color: #991b1b;
+  background: rgba(254, 226, 226, 0.85);
+  border: 1px solid rgba(248, 113, 113, 0.35);
   border-radius: 6px;
 }
 
@@ -332,7 +332,7 @@
     position: fixed;
     inset: 0;
     z-index: 35;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(15, 23, 42, 0.45);
     border: none;
     cursor: pointer;
   }
@@ -342,7 +342,7 @@
   .userRail {
     width: 100%;
     justify-content: flex-start;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--border);
     margin-top: 0.25rem;
     padding-top: 0.75rem;
   }
